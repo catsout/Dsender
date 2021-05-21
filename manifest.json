@@ -1,0 +1,27 @@
+{
+    "manifest_version": 2,
+    "version": "1.0",
+  
+    "name": "__MSG_extensionName__",
+    "description": "__MSG_extensionDescription__",
+  
+    "icons": {
+        "48": "icons/no.png"
+    },
+
+    "permissions": [
+        "downloads", "storage"
+    ],
+  
+    "default_locale": "en",
+
+    "browser_action": {
+        "default_icon": "icons/no.png",
+        "default_title": "__MSG_extensionName__",
+        "default_popup": "popup/popup.html"
+    },   
+
+    "background": {
+        "page": "background/background.html"
+    }
+}

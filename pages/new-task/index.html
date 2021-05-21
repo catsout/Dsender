@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+        textarea {
+          width: 100%;
+        }
+        label,input {
+          display: block;
+          margin: 5px 0px 2px 0px;
+        }
+        #footer {
+          margin: 5px 0px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-around;
+        }
+        .hidden {
+          display: none;
+        }
+    </style>
+  </head>
+<body>
+    <widget-messagebox></widget-messagebox>
+    <select id="selectDown"></select>
+    <select id="selectType">
+      <option value="link">add link</option>
+      <option value="metalink">add metalink</option>
+      <option value="torrent">add torrent</option>
+    </select>
+
+    <div id="link" class="part">
+      <label>links:</label>
+      <textarea id="textlink" cols="40" rows="5"></textarea>
+    </div>
+
+    <div id="metalink" class="part hidden">
+      <label>metalinks:</label>
+      <textarea name="Text1" cols="40" rows="5"></textarea>
+    </div>
+
+    <div id="torrent" class="part hidden">
+      <input type="file" id="myFile" name="filename">
+    </div>
+
+    <div id="common">
+      <label>path:</label>
+      <input type="text"></input>
+      <div id="footer">
+        <div></div>
+        <widget-button id="submit">add</widget-button>
+      </div>
+    </div>
+    <script type="module" src="index.js"></script> 
+</body>
+</html>

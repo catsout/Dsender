@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="popup.css"/>
+  </head>
+
+<body>
+  <widget-messagebox></widget-messagebox>
+  <div id="popup-content">
+    <widget-pageroute>
+      <div slot="header" id="header">
+        <widget-switch id="enable"></widget-switch>
+        <select id="selectdown" name="downloaders">
+        </select>
+        <div class="expand"></div>
+        <widget-button theme="icon" size="large" id="new"><img width="100%" src="../assets/icons/new.svg"></img></widget-button>
+      </div>
+      <div slot="routeHeader" id="routeHeader">
+        <widget-button theme="icon" size="large"><img width="100%" src="../assets/icons/back.svg"></img></widget-button>
+      </div>
+      <div slot="hr" class="hr"></div>
+      <div slot="content" id="task-list"></div>
+    </widget-pageroute>
+  </div>
+  <div class="hr"></div>
+  <div id="footer">
+    <span>
+      <widget-bytelabel speed id="down"></widget-bytelabel>
+      <widget-bytelabel speed id="up"></widget-bytelabel>
+    </span>
+    <widget-button theme="icon" size="fit" id="dstats"><widget-statsbar heighGroup="ok" lowGroup="error unauthorized" noGroup="offline"></widget-statsbar></widget-button>
+    <div class="expand"></div>
+    <widget-button theme="icon" size="large" id="newDownloader"><img width="100%" src="../assets/icons/newtab.svg"></img></widget-button>
+    <widget-button theme="icon" size="large" id="setting"><img width="100%" src="../assets/icons/preferences.svg"></img></widget-button>
+  </div>
+  <script type="module" src="popup.js"></script> 
+</body>
+
+</html>

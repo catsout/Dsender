@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+        body {
+          display: block;
+        }
+        label,input {
+          display: block;
+        }
+        label {
+          margin: 5px 0px 2px 0px;
+        }
+        span {
+          display: inline-block;
+        }
+        #port {
+          width: 50px;
+        }
+        #footer {
+          display: flex;
+          margin: 5px 0;
+          justify-content: space-around;
+        }
+    </style>
+  </head>
+
+<body>
+    <widget-messagebox></widget-messagebox>
+    <div>
+      <label for="name">name:</label><input id="name" type="text" required>
+      <span><label for="host">host:</label><input id="host" type="text" value="localhost"></span>
+      <span><label for="port">port:</label><input id="port" type="number" value="6800"></span>
+      <label for="token">token:</label><input id="token" type="password">
+      <label for="path">path:</label><input id="path" type="text" value="/jsonrpc">
+      <div id="footer">
+        <div></div>
+        <widget-button disabled id="submit">save</widget-button>
+      </div>
+    </div>
+    <script type="module" src="index.js"></script> 
+</body>
+
+</html>

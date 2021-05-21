@@ -1,0 +1,27 @@
+{
+  "extensionName": {
+    "message": "Dsender",
+    "description": "Name of the extension."
+  },
+
+  "extensionDescription": {
+    "message": "Send download to other downloader.",
+    "description": "Description of the extension."
+  },
+
+  "notificationTitle": {
+    "message": "Click notification",
+    "description": "Title of the click notification."
+  },
+
+  "notificationContent": {
+    "message": "You clicked $URL$.",
+    "description": "Tells the user which link they clicked.",
+    "placeholders": {
+      "url" : {
+        "content" : "$1",
+        "example" : "https://developer.mozilla.org"
+      }
+    }
+  }
+}
