@@ -1,12 +1,72 @@
 import '../../lib/widget-button.js';
 import '../../lib/widget-messagebar.js';
 
-import { DownloaderConfig } from '../../common.js';
+import { DownloaderConfig,EDownloaderType } from '../../common.js';
 import { DownloaderBase } from '../../lib/downloader-base.js';
+import Aria2 from '../../lib/downloader-aria2.js';
+import { QBittorrent } from '../../lib/downloader-qbittorrent.js';
 
 var changeds = new Set();
+var defaultConfig = {}
+
 var saveBut = document.querySelector('#submit');
 var msgbox = document.querySelector('widget-messagebox');
+var dextra = document.querySelector('#extra');
+var selectType = document.querySelector('#selectType');
+
+function getInputs() {
+    return document.querySelectorAll('#content input');
+}
+
+function loadConfigToDom(config) {
+    if(selectType.value !== config.type) {
+        selectType.value = config.type;
+        selectTypeChange();
+    }
+    getInputs().forEach(function(el) {
+        if(el.hasAttribute('readonly') && el.value) return;
+        if(el.id === 'name')
+            el.value = config.name;
+        else
+            el.value = config.data[el.id];
+    });
+}
+
+Object.entries(EDownloaderType).forEach(([key, value]) => {
+    const opt = document.createElement('option');
+    opt.text = key;
+    opt.value = value; 
+    selectType.add(opt);
+
+    if(value === EDownloaderType.aria2) 
+        defaultConfig[key] = (new Aria2()).toConfig();
+    else if(value === EDownloaderType.qbittorrent)
+        defaultConfig[key] = (new QBittorrent()).toConfig();
+});
+
+function showExtraConfig(name) {
+    const t = document.querySelector('.'+name);
+    dextra.innerHTML = '';
+    const dnew = t.content.cloneNode(true);
+    dextra.appendChild(dnew);
+    window.parent.dpageroute.fitIframeHeight();
+    dextra.querySelectorAll('input').forEach((el) => {
+        el.addEventListener('input', inputChanged);
+    });
+}
+
+function selectTypeChange(event) {
+    const sel = selectType;
+    const key = sel.item(sel.selectedIndex).text;
+    if(!key) return;
+    showExtraConfig(key);
+    loadConfigToDom(defaultConfig[key]);
+    if(saveBut.disabled && argName)
+        saveBut.disabled = false;
+}
+
+selectType.addEventListener('change', selectTypeChange);
+selectTypeChange();
 
 let params = new URLSearchParams(window.location.search);
 var argName = params.get('name');
@@ -14,15 +74,9 @@ if(argName) {
     saveBut.classList.add('disabled');
     let key = DownloaderBase.nameToId(argName);
     browser.storage.local.get(key).then(function(item) {
-        let config = item[key];
-        document.querySelectorAll('input').forEach(function(el) {
-            if(el.id === 'name')
-                el.value = config.name;
-            else
-                el.value = config.data[el.id];
-        });
+        loadConfigToDom(item[key]);
     });
-    document.querySelector('#name').setAttribute('readonly', '');
+    document.querySelector('#content #name').setAttribute('readonly', '');
 }
 
 function inputChanged(event) {
@@ -37,22 +91,21 @@ function inputChanged(event) {
     }
 }
 
-let inputs = document.querySelectorAll('input');
-inputs.forEach(function(el) {
+getInputs().forEach(function(el) {
     el.addEventListener('input', inputChanged);
 });
 
 function checkInput(input) {
     if(!input.checkValidity()) {
         input.focus();
-        msgbox.send(inputs.validationMessage, null, null, 3000);
+        msgbox.send(input.validationMessage, null, null, 3000);
         return false;
     }
     return true;
 }
 
 function checkInputs() {
-    let inputs = document.querySelectorAll('input');
+    const inputs = getInputs();
     for(let i=0;i<inputs.length;i++) {
         if(!checkInput(inputs[i]))
             return false;
@@ -65,16 +118,16 @@ document.querySelector('#submit').addEventListener('click', function(event) {
         return;
     }
     browser.storage.local.get('downloaderList').then(function(item) {
-        let config = new DownloaderConfig();
-        config.type = 'aria2';
-        document.querySelectorAll('input').forEach(function(el) {
+        const config = new DownloaderConfig();
+        config.type = selectType.value;
+        getInputs().forEach(function(el) {
             if(el.id === 'name')
                 config.name = el.value;
             else
                 config.data[el.id] = el.value;
         });
-        let key = DownloaderBase.nameToId(config.name);
-        let storage = {};
+        const key = DownloaderBase.nameToId(config.name);
+        const storage = {};
         item.downloaderList = item.downloaderList || [];
 
         // check if exist

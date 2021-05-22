@@ -4,7 +4,7 @@ import { basename, DownloaderStatus, EDownloaderStats, EDownloaderType, ETaskSta
 import Aria2 from '../lib/downloader-aria2.js';
 import { DownloaderBase } from '../lib/downloader-base.js';
 
-
+import {QBittorrent} from '../lib/downloader-qbittorrent.js';
 
 var tasks = [];
 function saveTasks() {
@@ -26,12 +26,19 @@ function getDownloader(name) {
 }
 
 function createDownloaderFromConfig(config) {
+  let down = null;
   switch(config.type) {
     case EDownloaderType.aria2:
-      let down = new Aria2(config.name);
-      down.fromConfig(config);
-      return down;
+      down = new Aria2(config.name);
+      break;
+    case EDownloaderType.qbittorrent:
+      down = new QBittorrent(config.name);
+      break;
   }
+  if(down) {
+    down.fromConfig(config);
+  }
+  return down;
 }
 
 // get all config
@@ -177,7 +184,7 @@ browser.runtime.onConnect.addListener(function(port) {
             console.log(id);
             port.postMessage({id: id, message: result});
           });
-        }
+        } 
       });
     }
 });
@@ -258,10 +265,9 @@ function sendToDownloadrs(sender) {
 
 // update derList tasklist
 function update() {
-  console.log(derList, tasks, defaultDerName);
   derList.forEach(function(el) {
     if(el.status.stats !== EDownloaderStats.ok) return;
-    el.getStat().then(function(result) {
+    el.getStatus().then(function(result) {
       el.status = result;
     });
   });

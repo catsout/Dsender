@@ -84,3 +84,14 @@ iframe {
   padding: 0;
   border: 0;
 }
+
+#header > span {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s;
+}
+
+#header > widget-switch[checked] + span {
+  opacity: 1;
+  visibility: unset;
+}

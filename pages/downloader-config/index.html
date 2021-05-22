@@ -28,13 +28,26 @@
   </head>
 
 <body>
-    <widget-messagebox></widget-messagebox>
-    <div>
-      <label for="name">name:</label><input id="name" type="text" required>
-      <span><label for="host">host:</label><input id="host" type="text" value="localhost"></span>
-      <span><label for="port">port:</label><input id="port" type="number" value="6800"></span>
+    <template class="aria2">
       <label for="token">token:</label><input id="token" type="password">
-      <label for="path">path:</label><input id="path" type="text" value="/jsonrpc">
+    </template>
+    <template class="qbittorrent">
+      <label for="username">username:</label><input id="username" type="text">
+      <label for="password">password:</label><input id="password" type="password">
+    </template>
+
+    <widget-messagebox></widget-messagebox>
+    <div id="content">
+      <div id="common">
+      <span><label for="name">name:</label><input id="name" type="text" required></span>
+      <span><label for="selectType">type:</label><select id="selectType"></select></span>
+      <span><label for="host">host:</label><input id="host" type="text"></span>
+      <span><label for="port">port:</label><input id="port" type="number"></span>
+      <label for="path">path:</label><input id="path" type="text">
+      </div>
+      <div id="extra">
+          <label for="token">token:</label><input id="token" type="password">
+      </div>
       <div id="footer">
         <div></div>
         <widget-button disabled id="submit">save</widget-button>

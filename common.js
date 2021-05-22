@@ -5,11 +5,13 @@ const ETaskStats = {
     paused: 'paused',
     error: 'error',
     unknown: 'unknown',
+    seeding: 'seeding',
     removed: 'removed' // will be removed from tasklist when open popup
 }
 
 const EDownloaderType = {
-    aria2: 'aria2'
+    aria2: 'aria2',
+    qbittorrent: 'qbittorrent'
 }
 
 const EDownloaderStats = {
@@ -101,6 +103,21 @@ class TaskStatus {
     }
 }
 
+class p2pTaskStatus extends TaskStatus {
+    /**
+     *
+     * @param {string} name 
+     * @param {string} stats 
+     * @param {number} downloadLength
+     * @param {number} totalLength
+     * @param {number} downloadSpeed
+     */
+    constructor(name, stats, downloadLength, totalLength, downloadSpeed, uploadSpeed) {
+        super(name, stats, downloadLength, totalLength, downloadSpeed);
+        this.uploadSpeed = uploadSpeed || 0;
+    }
+}
+
 class DownloaderConfig {
     /**
      * 
@@ -136,9 +153,12 @@ function base64decode(str) {
     }).join(''));
 }
 
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
 
 
-export {DownloaderStatus, Task, TaskParams, TaskStatus, ETaskStats};
+export {DownloaderStatus, Task, TaskParams, TaskStatus, p2pTaskStatus, ETaskStats};
 export {DownloaderConfig, EDownloaderType, EDownloaderStats};
-export {basename,capitalize};
+export {basename, capitalize, getRandomInt};
 export {base64, base64decode};

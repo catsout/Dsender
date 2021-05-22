@@ -27,17 +27,19 @@ function updateSelectDown(downloaderList) {
 }
 
 document.querySelector('#submit').addEventListener('click', function(event) {
-  document.querySelector('#textlink').value.split('\n').forEach((el) => {
-    if(!el) return;
-    backport.send({
-      command: 'addTask',
-      data: {
-        url: el,
-        downloader: selectDown.value,
-        params: {}
-      }
-    }).then((v) => console.log(v));
-  });
+  if(selectType.value === 'link') {
+    document.querySelector('#textlink').value.split('\n').forEach((el) => {
+      if(!el) return;
+      backport.send({
+        command: 'addTask',
+        data: {
+          url: el,
+          downloader: selectDown.value,
+          params: {}
+        }
+      }).then((v) => console.log(v));
+    });
+  }
 });
 
 browser.storage.local.get(['downloaderList']).then(item => {

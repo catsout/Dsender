@@ -27,18 +27,12 @@
     <select id="selectDown"></select>
     <select id="selectType">
       <option value="link">add link</option>
-      <option value="metalink">add metalink</option>
       <option value="torrent">add torrent</option>
     </select>
 
     <div id="link" class="part">
-      <label>links:</label>
+      <label for="textlink">links:</label>
       <textarea id="textlink" cols="40" rows="5"></textarea>
-    </div>
-
-    <div id="metalink" class="part hidden">
-      <label>metalinks:</label>
-      <textarea name="Text1" cols="40" rows="5"></textarea>
     </div>
 
     <div id="torrent" class="part hidden">
@@ -46,8 +40,8 @@
     </div>
 
     <div id="common">
-      <label>path:</label>
-      <input type="text"></input>
+      <label for="path">path:</label>
+      <input id="path" type="text" placeholder="default"></input>
       <div id="footer">
         <div></div>
         <widget-button id="submit">add</widget-button>

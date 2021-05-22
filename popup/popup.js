@@ -12,6 +12,7 @@ import { DownloaderBase } from '../lib/downloader-base.js';
 
 import { MessagePort } from '../lib/message.js';
 
+import {QBittorrent} from '../lib/downloader-qbittorrent.js';
 
 var backport = new MessagePort();
 backport.connect('request');
