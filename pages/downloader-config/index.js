@@ -143,5 +143,6 @@ document.querySelector('#submit').addEventListener('click', function(event) {
         }
         storage[key] = config;
         browser.storage.local.set(storage);
+        msgbox.send('Saved', 'success', null, 3000);
     });
 });

@@ -50,7 +50,7 @@ widget-pageroute {
   margin-top: 5px;
 }
 widget-taskitem {
-  --item-padding: 5px;
+  --item-padding: 5px 10px;
 }
 #task-list > *:not(:first-child)::after {
   content: '';
@@ -75,14 +75,6 @@ widget-taskitem {
 
 .hidden {
   display: none;
-}
-
-iframe {
-  width: 80%;
-  height: auto;
-  margin: 0;
-  padding: 0;
-  border: 0;
 }
 
 #header > span {

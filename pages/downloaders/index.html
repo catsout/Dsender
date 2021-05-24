@@ -7,6 +7,10 @@
         body {
           display: block;
           height: 250px;
+          width: 100%;
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
         }
         .item {
           display: flex;
@@ -15,19 +19,28 @@
           flex-direction: row;
           justify-content: space-around;
           height: auto;
-          margin: 5px 0px;
+          box-sizing: border-box;
+          margin: 5px 5px;
         }
         .item > :not(:first-child) {
-          /*flex: 0 0 60px;*/
           flex: 1;
           max-width: 60px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          background-color: chocolate;
+          word-break: break-all;
+          overflow-wrap: break-word;
+          font-size: small;
+          /*background-color: chocolate;*/
+        }
+        .item .name {
+          flex: 0 0 25%;
+          font-size: medium;
+          max-width: unset;
+        }
+        .item .type {
+          flex: 0 0 18%;
+          max-width: unset;
         }
         .item .speed {
-          flex: 0 0 25%;
+          flex: 0 0 18%;
           max-width: unset;
           white-space: normal;
         }
@@ -45,14 +58,32 @@
           height: 100%;
         }
         .speed {
+          display: inline-block;
           font-size: 12px;
         }
+        .speed > * {
+          display: block;
+        }
+        .hr {
+          width: 100%;
+          height: 0;
+          border-bottom: 1px solid black;
+          opacity: 30%;
+        }
+        #container {
+          margin: 5px 0px;
+        }
+        #container > :first-child .hr {
+          display: none;
+        }
+ 
     </style>
   </head>
 
 <body>
     <template id="titem">
       <div>
+        <div class="hr"></div>
         <div class="item">
           <widget-button class="bitem" theme="icon" size="fit"></widget-button>
           <span class="name"></span>
@@ -60,7 +91,6 @@
           <span class="stats"></span>
           <span class="speed">
             <widget-bytelabel speed class="down"></widget-bytelabel>
-            <span>,</span>
             <widget-bytelabel speed class="up"></widget-bytelabel>
           </span>
           <div class="itembut">

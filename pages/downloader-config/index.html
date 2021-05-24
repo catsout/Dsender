@@ -4,8 +4,11 @@
   <head>
     <meta charset="utf-8">
     <style>
-        body {
-          display: block;
+       body {
+          width: 100%;
+          box-sizing: border-box;
+          margin: 0;
+          padding: 5px 10px;
         }
         label,input {
           display: block;
@@ -32,7 +35,7 @@
       <label for="token">token:</label><input id="token" type="password">
     </template>
     <template class="qbittorrent">
-      <label for="username">username:</label><input id="username" type="text">
+      <label for="username">username:</label><input id="username" type="text" required>
       <label for="password">password:</label><input id="password" type="password">
     </template>
 
@@ -41,7 +44,7 @@
       <div id="common">
       <span><label for="name">name:</label><input id="name" type="text" required></span>
       <span><label for="selectType">type:</label><select id="selectType"></select></span>
-      <span><label for="host">host:</label><input id="host" type="text"></span>
+      <span><label for="host">host:</label><input id="host" type="text" required></span>
       <span><label for="port">port:</label><input id="port" type="number"></span>
       <label for="path">path:</label><input id="path" type="text">
       </div>

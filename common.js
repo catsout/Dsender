@@ -6,6 +6,7 @@ const ETaskStats = {
     error: 'error',
     unknown: 'unknown',
     seeding: 'seeding',
+    offline: 'offline',
     removed: 'removed' // will be removed from tasklist when open popup
 }
 

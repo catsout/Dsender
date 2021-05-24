@@ -51,15 +51,7 @@ $('#new').addEventListener('click', (e) => {
 $('#enable').addEventListener('change', (e) => {
   let checkd = e.detail.checked;
   browser.storage.local.set({enableCap: checkd});
-//  backport.send({command: 'enableCap', data: checkd});
 });
-
-
-var downloaders = {};
-
-function getDownloader(name) {
-  return downloaders[name];
-}
 
 function updateDerStatus(statusList) {
   let globalStatus = new DownloaderStatus();
@@ -90,7 +82,7 @@ function setTask(task, taskStatus) {
     tdom = document.createElement('widget-taskitem');
     tdom.setAttribute('id', 'd' + Task.getId(task));
     tdom.task = task;
-    tdom.taskapi = taskapi;
+    tdom.backport = backport;
     tasklist.appendChild(tdom);
   }
   if(taskStatus)
@@ -131,14 +123,6 @@ backPort.onMessage.addListener(function(message) {
     break;
   }
 });
-
-var taskapi = {
-  removeTask: function(task) {
-    removeTask(task);
-    backPort.postMessage({command: 'removeTask', data: task});
-    //downloaders.home.removeTask(task);
-  }
-}
 
 selectDown.addEventListener('input', function(event) {
   browser.storage.local.set({defaultDownloader: event.target.value});

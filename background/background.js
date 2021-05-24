@@ -142,12 +142,6 @@ browser.runtime.onConnect.addListener(function(port) {
         let tid = setInterval(function() {
           sendToPopup(port.postMessage);
         }, 500);
-        port.onMessage.addListener(function(message) {
-          let cmd = message.command;
-          if(cmd === 'removeTask') {
-            removeTask(message.data);
-          }
-        })
         port.onDisconnect.addListener(function(p) {
           clearInterval(tid);
           console.log('popup disconnected');
@@ -169,16 +163,19 @@ browser.runtime.onConnect.addListener(function(port) {
         let id = message.id;
         const cmd = message.message.command;
         const data = message.message.data;
-        if(cmd === 'enableCap') {
-          enableCap = data;
-          browser.storage.local.set({enableCap: enableCap});
-          port.postMessage({id: id});
-        }
-        else if(cmd === 'removeTask') {
+        if(cmd === 'removeTask') {
           removeTask(data);
-          port.postMessage({id: id});
+          const der = getDownloader(data.downloader);
+          der.removeTask(data).then((result) => {
+            port.postMessage({id: id, message: result});
+          });
+        } else if(cmd === 'pauseTask' || cmd === 'resumeTask') {
+          const der = getDownloader(data.downloader);
+          der[cmd](data).then((result) => {
+            port.postMessage({id: id, message: result});
+          });
         } else if(cmd === 'addTask') {
-          let der = getDownloader(data.downloader);
+          const der = getDownloader(data.downloader);
           der.addTask(data.url, data.params).then((result) => {
             addTask(result);
             console.log(id);
