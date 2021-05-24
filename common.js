@@ -78,10 +78,13 @@ class Task {
 }
 
 class TaskParams {
-    constructor(filename, dir, header) {
-        this.filename = filename||'';
+    constructor(name, dir, header, sequential, firstLastPiece) {
+        this.name = name||'';
         this.dir = dir||'';
         this.header = header||{};
+        // p2p
+        this.sequential = sequential||false;
+        this.firstLastPiece = firstLastPiece||false;
     }
 }
 

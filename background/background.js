@@ -165,8 +165,12 @@ browser.runtime.onConnect.addListener(function(port) {
         const data = message.message.data;
         if(cmd === 'removeTask') {
           removeTask(data);
+          port.postMessage({id: id, message: true});
+        }
+        else if(cmd === 'deleteTask') {
+          removeTask(data);
           const der = getDownloader(data.downloader);
-          der.removeTask(data).then((result) => {
+          der.deleteTask(data).then((result) => {
             port.postMessage({id: id, message: result});
           });
         } else if(cmd === 'pauseTask' || cmd === 'resumeTask') {
@@ -224,7 +228,7 @@ browser.downloads.onCreated.addListener(function handleCreated(item) {
   der.addTask(
     item.url,
     {
-      filename: basename(item.filename), 
+      name: basename(item.filename), 
     }
   ).then(v => {
     addTask(v);

@@ -28,6 +28,7 @@ function updateSelectDown(downloaderList) {
 
 document.querySelector('#submit').addEventListener('click', function(event) {
   if(selectType.value === 'link') {
+    const path = document.querySelector('#path').value;
     document.querySelector('#textlink').value.split('\n').forEach((el) => {
       if(!el) return;
       backport.send({
@@ -35,7 +36,9 @@ document.querySelector('#submit').addEventListener('click', function(event) {
         data: {
           url: el,
           downloader: selectDown.value,
-          params: {}
+          params: {
+            dir: path
+          }
         }
       }).then((v) => console.log(v));
     });
