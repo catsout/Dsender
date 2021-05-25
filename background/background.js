@@ -160,31 +160,40 @@ browser.runtime.onConnect.addListener(function(port) {
     } else if(port.name === 'request') {
       port.onMessage.addListener((message) => {
         if(typeof(message.id) !== 'number') return;
-        let id = message.id;
+        const id = message.id;
         const cmd = message.message.command;
         const data = message.message.data;
+        const sendOk = (result) => port.postMessage({id: id, message: result});
+        const sendError = (reason) => port.postMessage({id: id, error: reason.toString()});
+        const execApi = function(funcname, callback, ...args) {
+          const der = data.downloader?getDownloader(data.downloader):null;
+          try {
+            if(der) {
+              der[funcname](...args).then(function(result) {
+                if(callback)
+                  callback(result);
+                sendOk(result);
+              }).catch(sendError);
+            }
+            else sendError('no such downloader');
+          } catch(e) {
+            sendError(e);
+          }
+        };
+
         if(cmd === 'removeTask') {
           removeTask(data);
           port.postMessage({id: id, message: true});
         }
         else if(cmd === 'deleteTask') {
           removeTask(data);
-          const der = getDownloader(data.downloader);
-          der.deleteTask(data).then((result) => {
-            port.postMessage({id: id, message: result});
-          });
+          execApi(cmd, null, data);
         } else if(cmd === 'pauseTask' || cmd === 'resumeTask') {
-          const der = getDownloader(data.downloader);
-          der[cmd](data).then((result) => {
-            port.postMessage({id: id, message: result});
-          });
+          execApi(cmd, null, data);
         } else if(cmd === 'addTask') {
-          const der = getDownloader(data.downloader);
-          der.addTask(data.url, data.params).then((result) => {
+          execApi(cmd, (result) => {
             addTask(result);
-            console.log(id);
-            port.postMessage({id: id, message: result});
-          });
+          }, data.url, data.params);
         } 
       });
     }
@@ -230,8 +239,13 @@ browser.downloads.onCreated.addListener(function handleCreated(item) {
     {
       name: basename(item.filename), 
     }
-  ).then(v => {
-    addTask(v);
+  ).then((result) => {
+    addTask(result);
+    browser.notifications.create({
+      "type": "basic",
+      "title": 'send',
+      "message": `send download ${result.name} to ${result.downloader}`
+    });
   });
 
   browser.downloads.cancel(item.id);

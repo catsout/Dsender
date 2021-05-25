@@ -2,6 +2,7 @@ body {
   width: 460px;
   margin: 0;
   font-family: Sans-Serif;
+  font-size: 16px;
   box-sizing: border-box;
 }
 
@@ -15,7 +16,6 @@ widget-pageroute {
 }
 
 #footer,#header,#routeHeader {
-  padding: 5px;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -26,7 +26,7 @@ widget-pageroute {
   overflow: hidden;
 }
 #footer > *,#header > *,#routeHeader > * {
-  margin: 5px;
+  margin: 2.5px;
 }
 
 #footer > span > * {
@@ -44,10 +44,6 @@ widget-pageroute {
 #task-list {
   display: flex;
   flex-direction: column-reverse;
-  padding: 5px 0px;
-}
-#task-list > * {
-  margin-top: 5px;
 }
 widget-taskitem {
   --item-padding: 5px 10px;
@@ -59,7 +55,6 @@ widget-taskitem {
   height: 1px;
   background: black;
   opacity: 30%;
-  margin-top: 5px;
 }
 
 

@@ -11,7 +11,7 @@
 
     "permissions": [
         "<all_urls>",
-        "downloads", "storage", "tabs"
+        "downloads", "storage", "tabs", "notifications"
     ],
   
     "default_locale": "en",

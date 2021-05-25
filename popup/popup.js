@@ -6,6 +6,7 @@ import '../lib/widget-statsbar.js';
 import '../lib/widget-button.js';
 import '../lib/widget-switch.js';
 import '../lib/widget-messagebar.js';
+import '../lib/widget-waiticon.js';
 
 import {DownloaderStatus, Task, TaskStatus} from '../common.js'
 import { DownloaderBase } from '../lib/downloader-base.js';

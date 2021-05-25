@@ -31,7 +31,7 @@ document.querySelector('#submit').addEventListener('click', function(event) {
     const path = document.querySelector('#path').value;
     document.querySelector('#textlink').value.split('\n').forEach((el) => {
       if(!el) return;
-      backport.send({
+      const pmAddTask = backport.send({
         command: 'addTask',
         data: {
           url: el,
@@ -40,7 +40,8 @@ document.querySelector('#submit').addEventListener('click', function(event) {
             dir: path
           }
         }
-      }).then((v) => console.log(v));
+      });
+      msgbox.sendWait(pmAddTask, 'adding task');
     });
   }
 });
