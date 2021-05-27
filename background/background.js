@@ -5,6 +5,8 @@ import Aria2 from '../lib/downloader-aria2.js';
 import { DownloaderBase } from '../lib/downloader-base.js';
 
 import {QBittorrent} from '../lib/downloader-qbittorrent.js';
+import './monitor.js';
+import genDwonloadMonitor from './monitor.js';
 
 var tasks = [];
 function saveTasks() {
@@ -12,7 +14,31 @@ function saveTasks() {
   browser.storage.local.set({tasks: ts});
 }
 
-var enableCap = false;
+var monitor = genDwonloadMonitor(function ({url, name, referer, size}) {
+  browser.cookies.getAll({url: referer}).then((cookies) => {
+    const cookie = cookies.map((el) => el.name+'='+el.value).join('; ');
+    const params = new URLSearchParams({
+      url, name, referer, size,
+      cookie, 
+      ua: window.navigator.userAgent, 
+      popup: 'true'
+    });
+    browser.windows.create({
+      url: '/pages/new-task/index.html?' + params.toString(),
+      width: 600,
+      height: 320,
+      type: 'popup'
+    });
+  });
+});
+
+function setMonitor(enable) {
+  if(enable)
+    monitor.startMonitor({webrequest: true});
+  else
+    monitor.stopMonitor();
+}
+
 var defaultDerName = '';
 var derList = [];
 function getDownloader(name) {
@@ -44,7 +70,7 @@ function createDownloaderFromConfig(config) {
 // get all config
 browser.storage.local.get(null).then(item => {
   if(typeof(item.enableCap) === 'boolean') {
-    enableCap = item.enableCap;
+    setMonitor(item.enableCap);
   }
   if(item.tasks) {
     item.tasks.forEach((el) => {
@@ -71,9 +97,9 @@ function addStorageListener(keymatch, add, remove, change) {
 }
 
 addStorageListener('enableCap',
-  (key, value) => enableCap = value.newValue,
+  (key, value) => setMonitor(value.newValue),
   null,
-  (key, value) => enableCap = value.newValue
+  (key, value) => setMonitor(value.newValue)
 )
 
 addStorageListener('downloader_', 
@@ -139,14 +165,12 @@ var downloadersPort = null;
 browser.runtime.onConnect.addListener(function(port) {
     if (port.name === 'popup') {
         refreshTask(port.postMessage);
-        let tid = setInterval(function() {
+        const tid = setInterval(function() {
           sendToPopup(port.postMessage);
         }, 500);
         port.onDisconnect.addListener(function(p) {
           clearInterval(tid);
-          console.log('popup disconnected');
         });
-        console.log('popup connected');
         popupPort = port;
     } else if(port.name === 'downloaders') {
       let tid = setInterval(function() {
@@ -175,7 +199,7 @@ browser.runtime.onConnect.addListener(function(port) {
                 sendOk(result);
               }).catch(sendError);
             }
-            else sendError('no such downloader');
+            else sendError('downloader not available');
           } catch(e) {
             sendError(e);
           }
@@ -225,32 +249,6 @@ function removeTask(task) {
     i++;
   }
 }
-
-browser.downloads.onCreated.addListener(function handleCreated(item) {
-  //cookies.getAll()
-  //item.referrer
-  if(!enableCap) return;
-  let der = getDownloader(defaultDerName);
-  if(!der || der.status.stats !== EDownloaderStats.ok)
-    return;
-
-  der.addTask(
-    item.url,
-    {
-      name: basename(item.filename), 
-    }
-  ).then((result) => {
-    addTask(result);
-    browser.notifications.create({
-      "type": "basic",
-      "title": 'send',
-      "message": `send download ${result.name} to ${result.downloader}`
-    });
-  });
-
-  browser.downloads.cancel(item.id);
-  browser.downloads.erase({id: item.id});
-});
 
 
 function refreshTask(sender) {
@@ -306,7 +304,6 @@ function update() {
       if(tasks[index].task.name !== tasks[index].taskStatus.name) {
         tasks[index].task.name = tasks[index].taskStatus.name;
         saveTasks();
-        console.log('-------', 'savetasks');
       }
       else if(result) {
         tasks[index].taskStatus = result;

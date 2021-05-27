@@ -13,8 +13,6 @@ import { DownloaderBase } from '../lib/downloader-base.js';
 
 import { MessagePort } from '../lib/message.js';
 
-import {QBittorrent} from '../lib/downloader-qbittorrent.js';
-
 var backport = new MessagePort();
 backport.connect('request');
 
@@ -24,7 +22,6 @@ var tasklist = $('#task-list');
 var dsetting = $('#setting');
 window.dpageroute = $('widget-pageroute');
 var drouteBackBtn = $('[slot="routeHeader"] widget-button');
-var selectDown = $('#selectdown');
 var switchEnable = $('#enable');
 var msgbox = $('widget-messagebox');
 
@@ -84,6 +81,7 @@ function setTask(task, taskStatus) {
     tdom.setAttribute('id', 'd' + Task.getId(task));
     tdom.task = task;
     tdom.backport = backport;
+    tdom.msgbox = msgbox;
     tasklist.appendChild(tdom);
   }
   if(taskStatus)
@@ -125,41 +123,24 @@ backPort.onMessage.addListener(function(message) {
   }
 });
 
-selectDown.addEventListener('input', function(event) {
-  browser.storage.local.set({defaultDownloader: event.target.value});
-}) 
-
-function updateSelectDown(downloaderList) {
-  selectDown.innerHTML = '';
-  downloaderList.forEach((el) => {
-    let opt = document.createElement('option');
-    let name = DownloaderBase.idToName(el);
-    opt.value = name;
-    opt.text = name;
-    opt.id = name;
-    selectDown.add(opt);
-  });
-}
-
 browser.storage.local.get(['downloaderList', 'defaultDownloader', 'enableCap']).then(item => {
-  if(item.downloaderList) {
-    updateSelectDown(item.downloaderList);
-  }
-  if(item.defaultDownloader) {
-    selectDown.value = item.defaultDownloader;
-  } else
-    selectDown.value = null;
+  if(item.downloaderList) {}
+  if(item.defaultDownloader) {}
   if(item.enableCap) {
     switchEnable.checked = item.enableCap;
   }
 });
 
-browser.storage.onChanged.addListener(function(changes, area) {
+
+function storageChanged(changes, area) {
   if(changes.popupIgnore) return;
-  if(changes.downloaderList) {
-    updateSelectDown(changes.downloaderList.newValue);
-  }
-  if(changes.defaultDownloader) {
-    selectDown.value = changes.defaultDownloader.newValue;
-  }
+  if(changes.downloaderList) {}
+  if(changes.defaultDownloader) {}
+}
+
+
+browser.storage.onChanged.addListener(storageChanged);
+
+window.addEventListener("unload", function() {
+  browser.storage.onChanged.removeListener(storageChanged);
 });

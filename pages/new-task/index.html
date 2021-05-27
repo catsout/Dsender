@@ -10,16 +10,26 @@
           margin: 0;
           padding: 5px 10px;
           font-family: Sans-Serif;
-          font-size: 16px;
-
+          font-size: 13px;
+          user-select: none;
         }
         textarea {
           box-sizing: border-box;
           width: 100%;
+          margin: 5px;
         }
-        label,input {
-          display: block;
-          margin: 5px 0px 2px 0px;
+        label {
+          display: inline-block;
+          text-align: right;
+          min-width: 100px;
+        }
+        input {
+          display: inline-block;
+          margin: 5px 0px;
+          box-sizing: border-box;
+        }
+        label.nopad {
+          min-width: unset;
         }
         #footer {
           margin: 5px 0px;
@@ -30,33 +40,69 @@
         .hidden {
           display: none;
         }
+        .flex {
+          display: flex;
+          align-items: center;
+        }
+        .flex > input {
+          flex: 1;
+          margin-left: 5px;
+        }
+        select {
+          min-width: 50px;
+        }
     </style>
   </head>
 <body>
     <widget-messagebox></widget-messagebox>
-    <select id="selectDown"></select>
-    <select id="selectType">
-      <option value="link">add link</option>
-      <option value="torrent">add torrent</option>
-    </select>
-
-    <div id="link" class="part">
-      <label for="textlink">links:</label>
-      <textarea id="textlink" cols="40" rows="5"></textarea>
+    <div id="urls" class="part hidden">
+      <textarea id="texturls" cols="40" rows="5"></textarea>
     </div>
-
     <div id="torrent" class="part hidden">
       <input type="file" id="myFile" name="filename">
     </div>
-
-    <div id="common">
-      <label for="path">path:</label>
-      <input id="path" type="text" placeholder="default"></input>
-      <div id="footer">
-        <div></div>
-        <widget-button id="submit">add</widget-button>
+    <div id="url" class="part hidden">
+      <div class="flex">
+        <label for="texturl">Link:</label>
+        <input type="text" id="texturl">
+      </div>
+      <div class="flex">
+        <label for="name">Name:</label>
+        <input type="text" id="name">
       </div>
     </div>
+
+    <div id="common">
+      <label for="path">Download path:</label>
+      <input id="path" type="text" placeholder="default"><div></div>
+      <label for="selectDown">Send to:</label>
+      <select id="selectDown"></select>
+    </div>
+    <div id="option">
+      <div class="flex">
+        <label for="referer">Referer:</label>
+        <input type="text" id="referer">
+      </div>
+      <div class="flex">
+        <label for="useragent">User agent:</label>
+        <input type="text" id="useragent">
+      </div>
+      <div>
+        <label for="threads">Threads:</label>
+        <input style="width: 50px;" type="number" id="threads" placeholder="--">
+      </div>
+      <div>
+        <label for="minsplit">Min split size:</label>
+        <input style="width: 50px;" type="number" id="minsplit" placeholder="--"><span> M</span>
+      </div>
+    </div>  
+    <div id="footer">
+      <div></div>
+      <div></div>
+      <widget-button id="cancel" class="hidden">cancel</widget-button>
+      <widget-button id="submit">add</widget-button>
+    </div>
+
     <script type="module" src="index.js"></script> 
 </body>
 </html>

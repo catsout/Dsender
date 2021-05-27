@@ -24,6 +24,7 @@ widget-pageroute {
   white-space: nowrap;
   box-sizing: border-box;
   overflow: hidden;
+  font-size: 14px;
 }
 #footer > *,#header > *,#routeHeader > * {
   margin: 2.5px;

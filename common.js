@@ -78,10 +78,12 @@ class Task {
 }
 
 class TaskParams {
-    constructor(name, dir, header, sequential, firstLastPiece) {
+    constructor(name, dir, header, threads, minsplit, sequential, firstLastPiece) {
         this.name = name||'';
         this.dir = dir||'';
         this.header = header||{};
+        this.threads = threads||null;
+        this.minsplit = minsplit||null;
         // p2p
         this.sequential = sequential||false;
         this.firstLastPiece = firstLastPiece||false;
@@ -106,7 +108,6 @@ class TaskStatus {
         this.newStatus = true;
     }
 }
-
 class p2pTaskStatus extends TaskStatus {
     /**
      *
