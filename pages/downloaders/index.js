@@ -7,13 +7,13 @@ var dcontainer = document.querySelector('#container');
 
 function updateItem(ditem, data) {
     if(data.name || typeof(data.name) === 'string') {
-        ditem.querySelector(".name").innerHTML = data.name;
+        ditem.querySelector(".name").textContent = data.name;
         ditem.setAttribute('id', DownloaderBase.nameToId(data.name));
     }
     if(data.type)
-        ditem.querySelector('.type').innerHTML = data.type;
+        ditem.querySelector('.type').textContent = data.type;
     if(data.stats)
-        ditem.querySelector('.stats').innerHTML = data.stats;
+        ditem.querySelector('.stats').textContent = data.stats;
     if(typeof(data.downloadSpeed) === 'number')
         ditem.querySelector('.down').value = data.downloadSpeed;
     if(typeof(data.uploadSpeed) === 'number') {
@@ -40,7 +40,7 @@ function clickRemove(event) {
 
 function clickItem(event) {
     let item = this.parentNode;
-    let name = item.querySelector('.name').innerHTML;
+    let name = item.querySelector('.name').textContent;
     window.parent.dpageroute.go('/pages/downloader-config/index.html', {name: name});
 }
 

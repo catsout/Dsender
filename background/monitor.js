@@ -16,8 +16,8 @@ function checkContentTypeInclude(content_type) {
 }
 
 export default function genDwonloadMonitor(createDownloadCallback) {
-    const monitorRep = function({statusCode, responseHeaders, requestId, url, type, originUrl, tabId}) {
-        if(statusCode != 200) return {};
+    const monitorRep = function({statusCode, method, responseHeaders, requestId, url, type, originUrl, tabId}) {
+        if(statusCode != 200 || method.toLowerCase() !== 'get') return {};
         if(!responseHeaders) return {};
         let content_disposition = null;
         let content_type = null;
@@ -41,7 +41,7 @@ export default function genDwonloadMonitor(createDownloadCallback) {
         });
         if(content_disposition) {
             const {type, filename} = parseContentDisposition(content_disposition);
-            if(!(type === 'attachment')) return {};
+            if(type === 'inline') return {};
             if(filename !== null)
                 name = filename;
         } else {
