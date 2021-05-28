@@ -32,19 +32,25 @@ dsetting.addEventListener('click', (event) => {
 
 drouteBackBtn.addEventListener('click', (e) => {
   dpageroute.back();
-})
+});
+
+$('#cleanlist').addEventListener('click', (e) => {
+  tasklist.querySelectorAll('widget-taskitem').forEach((el) => {
+    el.removeTask();
+  });
+});
 
 $('#newDownloader').addEventListener('click', (e) => {
   dpageroute.goToggle('/pages/downloader-config/index.html');
-})
+});
 
 $('#dstats').addEventListener('click', (e) => {
   dpageroute.goToggle('/pages/downloaders/index.html');
-})
+});
 
 $('#new').addEventListener('click', (e) => {
   dpageroute.goToggle('/pages/new-task/index.html');
-})
+});
 
 $('#enable').addEventListener('change', (e) => {
   let checkd = e.detail.checked;

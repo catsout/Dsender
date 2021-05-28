@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="cleanlist.svg"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="20.3125"
+     inkscape:cx="1.5507692"
+     inkscape:cy="8.3938461"
+     inkscape:window-width="1868"
+     inkscape:window-height="1051"
+     inkscape:window-x="52"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4"
+     inkscape:object-nodes="true"
+     inkscape:snap-object-midpoints="true" />
+  <path
+     fill="context-fill"
+     d="m 3,4 h 10 c 1.333333,0 1.333333,-2 0,-2 H 3 C 1.6666672,2 1.6666672,4 3,4 Z M 13,7 H 3 C 1.6666672,7 1.6666672,9 3,9 h 10 c 1.333333,0 1.333333,-2 0,-2 z M 7.5195305,12 3,12 c -1.3333328,0 -1.3333328,2 0,2 l 4.5195305,0 c 1.3333316,0 1.3333316,-2 0,-2 z"
+     id="path2"
+     style="fill:#000000;fill-opacity:1;fill-rule:evenodd"
+     sodipodi:nodetypes="sssssssssssssss" />
+  <path
+     fill="context-fill"
+     d="m 11.91564,12.869776 2.014208,-2.014207 a 0.43534759,0.43534759 0 0 0 -0.615871,-0.615291 l -2.014208,2.013627 -2.0142089,-2.013627 a 0.43534759,0.43534759 0 1 0 -0.6152919,0.615291 l 2.0136278,2.014207 -2.0136278,2.014209 a 0.43534759,0.43534759 0 1 0 0.6152919,0.61529 l 2.0142089,-2.013625 2.014208,2.014207 a 0.43534759,0.43534759 0 0 0 0.61529,-0.615872 z"
+     id="path973-6"
+     style="fill:#000000;fill-opacity:1;paint-order:stroke fill markers;fill-rule:evenodd" />
+</svg>
