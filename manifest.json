@@ -1,12 +1,12 @@
 {
     "manifest_version": 2,
-    "version": "1.0",
+    "version": "0.1",
   
     "name": "__MSG_extensionName__",
     "description": "__MSG_extensionDescription__",
   
     "icons": {
-        "48": "icons/no.png"
+        "48": "assets/icon.svg"
     },
 
     "permissions": [
@@ -17,7 +17,7 @@
     "default_locale": "en",
 
     "browser_action": {
-        "default_icon": "icons/no.png",
+        "default_icon": "assets/icon.svg",
         "default_title": "__MSG_extensionName__",
         "default_popup": "popup/popup.html"
     },   
@@ -30,10 +30,15 @@
     ],
 
     "protocol_handlers": [
-    {
-      "protocol": "magnet",
-      "name": "Dsender",
-      "uriTemplate": "/pages/protocol/magnet.html?url=%s"
+        {
+          "protocol": "magnet",
+          "name": "Dsender",
+          "uriTemplate": "/pages/protocol/magnet.html?url=%s"
+        }
+    ],
+
+    "developer": {
+       "name": "catsout",
+       "url": "https://github.com/catsout/Dsender"
     }
-  ]
 }

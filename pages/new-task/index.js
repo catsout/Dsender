@@ -89,6 +89,7 @@ function addCallback(result) {
   browser.notifications.create({
     "type": "basic",
     "title": 'send',
+    "iconUrl": '../../assets/icon.svg',
     "message": `send download ${result.name} to ${result.downloader}`
   });
   if(popup) window.close();
