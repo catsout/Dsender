@@ -5,6 +5,10 @@ import { DownloaderConfig,EDownloaderType } from '../../common.js';
 import { DownloaderBase } from '../../lib/downloader-base.js';
 import Aria2 from '../../lib/downloader-aria2.js';
 import { QBittorrent } from '../../lib/downloader-qbittorrent.js';
+import { MessagePort } from '../../lib/message.js';
+
+var backport = new MessagePort();
+backport.connect('request');
 
 var changeds = new Set();
 var defaultConfig = {}

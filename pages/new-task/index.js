@@ -1,3 +1,4 @@
+import { TaskParams, Tp2pParmas, TurlParmas } from '../../common.js';
 import { DownloaderBase } from '../../lib/downloader-base.js';
 import { MessagePort } from '../../lib/message.js';
 import '../../lib/widget-button.js';
@@ -72,11 +73,10 @@ function checkInputs() {
 }
 
 
-function addTask(url, params) {
+function addTask(params) {
   const pmAddTask = backport.send({
     command: 'addTask',
     data: {
-      url: url, 
       downloader: selectDown.value,
       params: params
     }
@@ -101,25 +101,30 @@ document.querySelector('#submit').addEventListener('click', function(event) {
   const path = document.querySelector('#path').value;
   const threads = parseInt(document.querySelector('#threads').value, 10);
   const minsplit = parseInt(document.querySelector('#minsplit').value, 10);
-  const tparams = {
-    name: dname.value,
-    dir: path,
-    header: {
-      'Referer': dreferer.value,
-      'User-Agent': dua.value,
-      'Cookie': cookie
-    },
-    threads: Number.isNaN(threads)?null:threads,
-    minsplit: Number.isNaN(minsplit)?null:minsplit
-  };
+  const tparams = new TaskParams(
+    dname.value,
+    path,
+    new TurlParmas(
+      null,
+      {
+        'Referer': dreferer.value,
+        'User-Agent': dua.value,
+        'Cookie': cookie
+      },
+      Number.isNaN(threads)?null:threads,
+      Number.isNaN(minsplit)?null:minsplit
+    )
+  )
 
   if(newType === 'urls') {
     document.querySelector('#texturls').value.split('\n').forEach((el) => {
       if(!el) return;
-        addTask(el, tparams).then(addCallback);
+      tparams.urlParmas.url = el;
+      addTask(tparams).then(addCallback);
     });
   } else if(newType === 'url') {
-    addTask(durl.value, tparams).then(addCallback);
+    tparams.urlParmas.url = durl.value;
+    addTask(tparams).then(addCallback);
   }
 });
 

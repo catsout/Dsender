@@ -37,6 +37,9 @@
           flex-wrap: wrap;
           justify-content: space-around;
         }
+        #footer widget-button{
+          margin: 0px 10px;
+        }
         .hidden {
           display: none;
         }
@@ -50,6 +53,7 @@
         }
         select {
           min-width: 50px;
+          margin: 5px 0px;
         }
     </style>
   </head>
@@ -68,7 +72,7 @@
       </div>
       <div class="flex">
         <label for="name">Name:</label>
-        <input type="text" id="name">
+        <input type="text" id="name" placeholder="decided by downloader">
       </div>
     </div>
 
@@ -99,8 +103,10 @@
     <div id="footer">
       <div></div>
       <div></div>
-      <widget-button id="cancel" class="hidden">cancel</widget-button>
-      <widget-button id="submit">add</widget-button>
+      <div>
+        <widget-button id="cancel" class="hidden">cancel</widget-button>
+        <widget-button id="submit">add</widget-button>
+      </div>
     </div>
 
     <script type="module" src="index.js"></script> 

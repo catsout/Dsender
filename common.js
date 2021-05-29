@@ -61,32 +61,62 @@ class Task {
      * @param {string} key 
      */
     constructor(name, downloader, key) {
-        this.name = name || '';
+        this.name = name || 'unknown';
         this.downloader = downloader;
         this.key = key;
     }
 
     /**
      *
-     * @param {Task} 
+     * @param {Task} t
      * @returns {string}
      */
     static getId(t) {
         if(!t) return '';
         return t.downloader + t.key;
     }
+
+    /**
+     * 
+     * @param {Task} t1 
+     * @param {Task} t2 
+     * @return {Boolean}
+     */
+    static compare(t1, t2) {
+        return t1.key === t2.key && t1.downloader === t2.downloader;
+    }
 }
 
-class TaskParams {
-    constructor(name, dir, header, threads, minsplit, sequential, firstLastPiece) {
-        this.name = name||'';
-        this.dir = dir||'';
+class TurlParmas {
+    constructor(url, header, threads, minsplit) {
+        this.url = url||null;
         this.header = header||{};
         this.threads = threads||null;
         this.minsplit = minsplit||null;
-        // p2p
+    }
+}
+class Tp2pParmas {
+    constructor(magnetUrl, torrentData, sequential, firstLastPiece) {
+        this.magnetUrl = magnetUrl||null;
+        this.torrentData = torrentData||null;
         this.sequential = sequential||false;
         this.firstLastPiece = firstLastPiece||false;
+    }
+}
+
+class TaskParams {
+    /**
+     * 
+     * @param {String} name 
+     * @param {String} dir 
+     * @param {TurlParmas|null} urlParmas 
+     * @param {Tp2pParmas|null} p2pParmas 
+     */
+    constructor(name, dir, urlParmas, p2pParmas) {
+        this.name = name||'';
+        this.dir = dir||'';
+        this.urlParmas = urlParmas||null;
+        this.p2pParmas = p2pParmas||null;
     }
 }
 
@@ -120,6 +150,18 @@ class p2pTaskStatus extends TaskStatus {
     constructor(name, stats, downloadLength, totalLength, downloadSpeed, uploadSpeed) {
         super(name, stats, downloadLength, totalLength, downloadSpeed);
         this.uploadSpeed = uploadSpeed || 0;
+    }
+}
+
+class TaskItem {
+    /**
+     * 
+     * @param {Task} task 
+     * @param {TaskStatus} status 
+     */
+    constructor(task, status) {
+        this.task = task || new Task();
+        this.status = status || new TaskStatus(this.task.name);
     }
 }
 
@@ -163,7 +205,8 @@ function getRandomInt(min, max) {
 }
 
 
-export {DownloaderStatus, Task, TaskParams, TaskStatus, p2pTaskStatus, ETaskStats};
+export {Tp2pParmas, TurlParmas};
+export {DownloaderStatus, Task, TaskParams, TaskStatus, TaskItem, p2pTaskStatus, ETaskStats};
 export {DownloaderConfig, EDownloaderType, EDownloaderStats};
 export {basename, capitalize, getRandomInt};
 export {base64, base64decode};

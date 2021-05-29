@@ -53,18 +53,18 @@ $('#new').addEventListener('click', (e) => {
 });
 
 $('#enable').addEventListener('change', (e) => {
-  let checkd = e.detail.checked;
+  const checkd = e.detail.checked;
   browser.storage.local.set({enableCap: checkd});
 });
 
-function updateDerStatus(statusList) {
+function updateDerStatus(status) {
   let globalStatus = new DownloaderStatus();
-  let statsList = [];
-  for(let i=0;i<statusList.length;i++) {
-    globalStatus = DownloaderStatus.add(globalStatus, statusList[i]);
-    statsList.push(statusList[i].stats);
-  }
-  if(statusList.length === 0) {
+  const statsList = [];
+  Object.entries(status).forEach(([k, v]) => {
+    globalStatus = DownloaderStatus.add(globalStatus, v);
+    statsList.push(v.stats);
+  });
+  if(statsList.length === 0) {
     globalStatus.downloadSpeed = null;
     globalStatus.uploadSpeed = null;
   }
@@ -109,22 +109,8 @@ var backPort = browser.runtime.connect({ name: 'popup' });
 backPort.onMessage.addListener(function(message) {
   if(!message.command) return;
   switch(message.command) {
-  case 'downloads':
-    break;
-  case 'downloaderStatus':
-    updateDerStatus(message.data);
-    break;
-  case 'setTask':
-    setTask(message.data.task, message.data.taskStatus);
-    break;
   case 'removeTask':
     removeTask(message.data);
-    break;
-  case 'refresh':
-    updateDerStatus(message.data.global);
-    message.data.tasks.forEach(el => {
-      setTask(el.task, el.taskStatus);
-    });
     break;
   }
 });
@@ -150,3 +136,15 @@ browser.storage.onChanged.addListener(storageChanged);
 window.addEventListener("unload", function() {
   browser.storage.onChanged.removeListener(storageChanged);
 });
+
+
+function update(allsync) {
+  backport.send({command: 'sync', data: allsync}).then((result) => {
+    updateDerStatus(result.downloaderStatus);
+    result.taskItems.forEach(function(el) {
+      setTask(el.task, el.status);
+    })
+  });
+}
+update(true);
+setInterval(update, 1000);

@@ -1,8 +1,6 @@
 import { basename } from "../common.js";
 import { parseContentDisposition } from '../lib/content-disposition.js';
 
-const reAttached = new RegExp('\battachment', 'i');
-
 const exclude_content_type = new Set([
     "x-xpinstall"
 ]);
@@ -15,8 +13,14 @@ function checkContentTypeInclude(content_type) {
     return !exclude_content_type.has(subtype);
 }
 
-export default function genDwonloadMonitor(createDownloadCallback) {
-    const monitorRep = function({statusCode, method, responseHeaders, requestId, url, type, originUrl, tabId}) {
+class DownloaderTaker {
+    constructor(createDownloadCallback) {
+        this.createDownloadCallback = createDownloadCallback;
+
+        this.onHeadersReceived_bind = this.onHeadersReceived.bind(this);
+        this.onDownloadsCreated_bind = this.onDownloadsCreated.bind(this);
+    }
+    onHeadersReceived({statusCode, method, responseHeaders, requestId, url, type, originUrl, tabId}) {
         if(statusCode != 200 || method.toLowerCase() !== 'get') return {};
         if(!responseHeaders) return {};
         let content_disposition = null;
@@ -59,7 +63,7 @@ export default function genDwonloadMonitor(createDownloadCallback) {
                 name = '';
             }
         }
-        createDownloadCallback({url, name, referer: originUrl, size: content_length});
+        this.createDownloadCallback({url, name, referer: originUrl, size: content_length});
         // remove blank page
         if(type === 'main_frame' && tabId !== -1) {
             browser.tabs.get(tabId).then(({url}) => {
@@ -69,30 +73,31 @@ export default function genDwonloadMonitor(createDownloadCallback) {
         }
         return { cancel: true };
     };
-    const monitorDown = function({id, filename, fileSize, referer, url}) {
+    onDownloadsCreated({id, filename, fileSize, referer, url}) {
         createDownloadCallback({url, name: basename(filename), referer, size: fileSize});
         browser.downloads.cancel(id).catch(() => {});
         browser.downloads.removeFile(id).catch(() => {});
         browser.downloads.erase({id}).catch(() => {});
     };
-    const startMonitor = function({webrequest}) {
-        if(browser.webRequest.onHeadersReceived.hasListener(monitorRep)) 
+    startMonitor({webrequest}) {
+        if(browser.webRequest.onHeadersReceived.hasListener(this.onHeadersReceived_bind)) 
             throw new Error("can't startMonitor twice");
-        if(browser.downloads.onCreated.hasListener(monitorDown)) 
+        if(browser.downloads.onCreated.hasListener(this.onDownloadsCreated_bind)) 
             throw new Error("can't startMonitor twice");
 
         if(webrequest) {
-            browser.webRequest.onHeadersReceived.addListener(monitorRep, {
+            browser.webRequest.onHeadersReceived.addListener(this.onHeadersReceived_bind, {
                 urls: ['http://*/*', 'https://*/*'],
                 types: ['main_frame', 'sub_frame'],
             }, ['blocking', 'responseHeaders'])
         } else {
-            browser.downloads.onCreated.addListener(monitorDown);
+            browser.downloads.onCreated.addListener(this.onDownloadsCreated_bind);
         }
     }
-    const stopMonitor = function() {
-        browser.webRequest.onHeadersReceived.removeListener(monitorRep);
-        browser.downloads.onCreated.removeListener(monitorDown);
+    stopMonitor() {
+        browser.webRequest.onHeadersReceived.removeListener(this.onHeadersReceived_bind);
+        browser.downloads.onCreated.removeListener(this.onDownloadsCreated_bind);
     }
-    return {startMonitor, stopMonitor};
 }
+
+export {DownloaderTaker};

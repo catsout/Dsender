@@ -1,20 +1,15 @@
 'use strict';
 
-import { basename, DownloaderStatus, EDownloaderStats, EDownloaderType, ETaskStats, Task, TaskStatus } from '../common.js';
-import Aria2 from '../lib/downloader-aria2.js';
+import { Dsender } from './dsender.js';
+import { DownloaderTaker } from './downloadTaker.js';
+
 import { DownloaderBase } from '../lib/downloader-base.js';
 
-import {QBittorrent} from '../lib/downloader-qbittorrent.js';
-import './monitor.js';
-import genDwonloadMonitor from './monitor.js';
+var dsender = new Dsender();
+dsender.tmgr.updateInterval = 1000;
 
-var tasks = [];
-function saveTasks() {
-  let ts = tasks.map((el) => el.task); 
-  browser.storage.local.set({tasks: ts});
-}
 
-var monitor = genDwonloadMonitor(function ({url, name, referer, size}) {
+function createDownCallback({url, name, referer, size}) {
   browser.cookies.getAll({url: referer}).then((cookies) => {
     const cookie = cookies.map((el) => el.name+'='+el.value).join('; ');
     const params = new URLSearchParams({
@@ -30,60 +25,22 @@ var monitor = genDwonloadMonitor(function ({url, name, referer, size}) {
       type: 'popup'
     });
   });
-});
+};
+var dTaker = new DownloaderTaker(createDownCallback);
 
 function setMonitor(enable) {
   if(enable)
-    monitor.startMonitor({webrequest: true});
+    dTaker.startMonitor({webrequest: true});
   else
-    monitor.stopMonitor();
+    dTaker.stopMonitor();
 }
 
 var defaultDerName = '';
-var derList = [];
-function getDownloader(name) {
-  let i=0;
-  while(i<derList.length) {
-    if(derList[i].name === name)
-      return derList[i];
-    i++;
-  }
-  return null;
-}
-
-function createDownloaderFromConfig(config) {
-  let down = null;
-  switch(config.type) {
-    case EDownloaderType.aria2:
-      down = new Aria2(config.name);
-      break;
-    case EDownloaderType.qbittorrent:
-      down = new QBittorrent(config.name);
-      break;
-  }
-  if(down) {
-    down.fromConfig(config);
-  }
-  return down;
-}
 
 // get all config
-browser.storage.local.get(null).then(item => {
+browser.storage.local.get(['enableCap', 'defaultDownloader']).then(item => {
   if(typeof(item.enableCap) === 'boolean') {
     setMonitor(item.enableCap);
-  }
-  if(item.tasks) {
-    item.tasks.forEach((el) => {
-      tasks.push({task: el, taskStatus: new TaskStatus()});
-    });
-  }
-  if(item.downloaderList) {
-    item.downloaderList.forEach(function(el, index) {
-      if(item[el])
-        derList.push(createDownloaderFromConfig(item[el]));
-      else
-        browser.storage.local.remove(el);
-    });
   }
   if(item.defaultDownloader) {
     defaultDerName = item.defaultDownloader;
@@ -92,7 +49,7 @@ browser.storage.local.get(null).then(item => {
 
 var storageListeners = new Map();
 function addStorageListener(keymatch, add, remove, change) {
-  let empty = function() {};
+  const empty = function() {};
   storageListeners.set(keymatch, {add: add||empty, remove: remove||empty, change: change||empty});
 }
 
@@ -104,29 +61,14 @@ addStorageListener('enableCap',
 
 addStorageListener('downloader_', 
   function(key, value) {
-    derList.push(createDownloaderFromConfig(value.newValue));
-    if(!defaultDerName) {
-      browser.storage.local.set({defaultDownloader: value.newValue.name});
-    }
+    dsender.tmgr.setDownloader(value.newValue);
   },
   function(key, value) {
-    let name = DownloaderBase.idToName(key);
-    for(let i=0;i<derList.length;i++) {
-      if(derList[i].name === name) {
-        derList.splice(i, 1);
-        if(name === defaultDerName) {
-          browser.storage.local.remove('defaultDownloader');
-        }
-        return;
-      }
-    }
+    const name = DownloaderBase.idToName(key);
+    dsender.tmgr.removeDownloader(name);
   },
   function(key, value) {
-    let name = DownloaderBase.idToName(key);
-    let der = derList.find(el => el.name === name);
-    if(der) {
-      der.fromConfig(value.newValue);
-    }
+    dsender.tmgr.setDownloader(value.newValue);
   }
 )
 addStorageListener('defaultDownloader',
@@ -143,7 +85,7 @@ addStorageListener('defaultDownloader',
 
 browser.storage.onChanged.addListener(function(changes, area) {
   storageListeners.forEach(function(svalue, key) {
-    let rename = new RegExp(key);
+    const rename = new RegExp(key);
     Object.entries(changes).forEach(function([key, value]) {
       if(key.match(rename)) {
         if(typeof(value.oldValue) === 'undefined')
@@ -160,181 +102,54 @@ browser.storage.onChanged.addListener(function(changes, area) {
 
 // connections 
 var popupPort = null;
-var downloadersPort = null;
 
 browser.runtime.onConnect.addListener(function(port) {
-    if (port.name === 'popup') {
-        refreshTask(port.postMessage);
-        const tid = setInterval(function() {
-          sendToPopup(port.postMessage);
-        }, 500);
-        port.onDisconnect.addListener(function(p) {
-          clearInterval(tid);
-        });
-        popupPort = port;
-    } else if(port.name === 'downloaders') {
-      let tid = setInterval(function() {
-        sendToDownloadrs(port.postMessage);
-      }, 1000);
-      port.onDisconnect.addListener(function() {
-        clearInterval(tid);
-      });
-      sendToDownloadrs(port.postMessage);
-      downloadersPort = port;
-    } else if(port.name === 'request') {
+    if(port.name === 'request') {
       port.onMessage.addListener((message) => {
         if(typeof(message.id) !== 'number') return;
         const id = message.id;
         const cmd = message.message.command;
         const data = message.message.data;
-        const sendOk = (result) => port.postMessage({id: id, message: result});
+        const sendOk = (result) => {
+          if(!port.disconnected)
+            port.postMessage({id: id, message: result}
+        )};
         const sendError = (reason) => port.postMessage({id: id, error: reason.toString()});
-        const execApi = function(funcname, callback, ...args) {
-          const der = data.downloader?getDownloader(data.downloader):null;
-          try {
-            if(der) {
-              der[funcname](...args).then(function(result) {
-                if(callback)
-                  callback(result);
-                sendOk(result);
-              }).catch(sendError);
-            }
-            else sendError('downloader not available');
-          } catch(e) {
-            sendError(e);
-          }
-        };
-
-        if(cmd === 'removeTask') {
-          removeTask(data);
-          port.postMessage({id: id, message: true});
+        
+        if(cmd === 'sync') {
+          if(data) dsender.tmgr.updateStatus(true);
+          const derStatus = dsender.tmgr.getDownloaderStatus()
+          const taskItems = dsender.tmgr.getTaskStatus().filter((el) => {
+            const newStatus = el.status.newStatus;
+            if(newStatus)
+              el.status.newStatus = false;
+            return newStatus;
+          });
+          sendOk({downloaderStatus: derStatus, taskItems: taskItems});
         }
-        else if(cmd === 'deleteTask') {
-          removeTask(data);
-          execApi(cmd, null, data);
+        else if(cmd === 'downloaderStatus') {
+          sendOk(dsender.tmgr.getDownloaderStatus());
+        }
+        else if(cmd === 'removeTask') {
+          dsender.tmgr.removeTask(data).then(function() {sendOk(true)});
+        } else if(cmd === 'deleteTask') {
+          dsender.tmgr.removeTask(data, true).then(function() {sendOk(true)});
         } else if(cmd === 'pauseTask' || cmd === 'resumeTask') {
-          execApi(cmd, null, data);
+          //execApi(cmd, null, data);
         } else if(cmd === 'addTask') {
-          execApi(cmd, (result) => {
-            addTask(result);
-          }, data.url, data.params);
+          dsender.tmgr.addTask(data.params, data.downloader).then(function(result) {
+            sendOk(result); 
+          });
         } 
       });
+      port.onDisconnect.addListener(function(p) { p.disconnected = true; })
     }
 });
 
-function getTaskIndex(task) {
-  for(let i=0;i<tasks.length;i++) {
-    let cmp = tasks[i].task;
-    if(task.key == cmp.key && task.downloader == cmp.downloader)
-      return i;
-  }
-  return null;
-}
 
-function addTask(task) {
-  tasks.push({task: task, taskStatus: new TaskStatus()});
-  saveTasks();
-}
-
-function removeTask(task) {
-  let i = 0;
-  while(i<tasks.length) {
-    let cmp = tasks[i].task;
-    if(cmp.downloader == task.downloader && cmp.key == task.key) {
-      tasks.splice(i,1);
-      saveTasks();
-      return;
-    }
-    i++;
-  }
-}
-
-
-function refreshTask(sender) {
-  tasks.forEach(el => {
-    if(el.taskStatus) {
-      el.taskStatus.newStatus = true;
-    }
-  });
-  sendToPopup(sender);
-  tasks.forEach(el => {
-    if(el.taskStatus) {
-      el.taskStatus.stats = ETaskStats.downloading;
-    }
-  });
-}
-
-function sendToDownloadrs(sender) {
-  let derStatusMap = {};
-  for(let i=0;i<derList.length;i++) {
-    let der = derList[i];
-    derStatusMap[DownloaderBase.nameToId(der.name)] = der.status;
-  }
-  sender({command: 'downloaders', data: derStatusMap});
-}
-
-
-
-// update derList tasklist
-function update() {
-  derList.forEach(function(el) {
-    if(el.status.stats !== EDownloaderStats.ok) return;
-    el.getStatus().then(function(result) {
-      el.status = result;
-    });
-  });
-
-  for(let i=tasks.length-1;i >= 0;i--) {
-    let task = tasks[i].task;
-    let taskStatus = tasks[i].taskStatus;
-    let der = getDownloader(task.downloader);
-
-    if(!der || der.status.stats !== EDownloaderStats.ok) continue;
-
-    // skip
-    if(taskStatus && (taskStatus.stats === ETaskStats.complete || taskStatus.stats === ETaskStats.removed)) 
-      continue;
-
-    der.getTaskStatus(task).then(result => {
-      let index = i;
-      if(task.key != tasks[i].task.key)
-        index = getTaskIndex(task);
-      if(index === null) return;
-      if(tasks[index].task.name !== tasks[index].taskStatus.name) {
-        tasks[index].task.name = tasks[index].taskStatus.name;
-        saveTasks();
-      }
-      else if(result) {
-        tasks[index].taskStatus = result;
-      } else {
-        tasks[index].taskStatus.stats = ETaskStats.removed;
-        tasks[index].taskStatus.newStatus = true;
-      }
-    });
-  }
-
-}
-
-function sendToPopup(sender) {
-  if(!sender) return;
-  let derStatusList = [];
-  for(let i=0;i<derList.length;i++) {
-    derStatusList.push(derList[i].status);
-  }
-  sender({command: 'downloaderStatus', data: derStatusList});
-
-  tasks.forEach(function(el, index) {
-    if(!el.taskStatus || !el.taskStatus.newStatus) return;
-    el.taskStatus.newStatus = false;
-    if(el.taskStatus.stats === ETaskStats.removed) {
-      removeTask(el.task);
-      sender({command: 'removeTask', data: el.task});
-    }
-    else {
-      sender({command: 'setTask', data: {task: el.task, taskStatus: el.taskStatus}});
-    }
-  });
-};
-
-setInterval(update, 1000);
+browser.contextMenus.create({
+  id: "send",
+  title: "Send to ...",
+  contexts: ['link'],
+  documentUrlPatterns: ['*://*/*']
+});

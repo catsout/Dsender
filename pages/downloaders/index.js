@@ -1,6 +1,10 @@
 import { DownloaderBase } from '../../lib/downloader-base.js';
+import { MessagePort } from '../../lib/message.js';
 import '../../lib/widget-button.js'
 import '../../lib/widget-bytelabel.js'
+
+var backport = new MessagePort();
+backport.connect('request');
 
 var dtitem = document.querySelector('#titem');
 var dcontainer = document.querySelector('#container');
@@ -53,9 +57,9 @@ function addItem(ditem, data) {
 
 function updateStatus(statusMap) {
     dcontainer.childNodes.forEach(function(el) {
-        let id = el.getAttribute('id');
-        if(statusMap[id]) {
-            updateItem(el, statusMap[id]);
+        const name = DownloaderBase.idToName(el.getAttribute('id'));
+        if(statusMap[name]) {
+            updateItem(el, statusMap[name]);
         }
     });
 }
@@ -71,13 +75,8 @@ browser.storage.local.get(null).then(item => {
     }
 });
 
-var backPort = browser.runtime.connect({ name: 'downloaders' });
-
-backPort.onMessage.addListener(function(message) {
-  if(!message.command) return;
-  switch(message.command) {
-  case 'downloaders':
-        updateStatus(message.data);
-    break;
-  }
-});
+function update() {
+    backport.send({command: 'downloaderStatus'}).then((result) => updateStatus(result));
+}
+update();
+setInterval(update, 1000);
