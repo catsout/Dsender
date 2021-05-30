@@ -12,25 +12,11 @@ function closeTab() {
     });
 }
 
-browser.storage.local.get(['defaultDownloader']).then(item => {
-    if(item.defaultDownloader) {
-        const magnet = DownloaderBase.getMagnetInfo(url);
-        return backport.send({
-            command: 'addTask',
-            data: {
-                url: url,
-                downloader: item.defaultDownloader,
-                params: {
-                    name: magnet.name || magnet.hash
-                }
-            }
-        }).then((result) => {
-            browser.notifications.create({
-                "type": "basic",
-                "title": 'send',
-                "message": `send download ${result.name} to ${result.downloader}`
-            });
-        });
-    }
-    return true;
-}).then(closeTab, closeTab);
+const name = DownloaderBase.getMagnetInfo(url).name;
+const nparams = new URLSearchParams({popup: true, type: 'btMagnet', magnet: url, name});
+browser.windows.create({
+    url: '/pages/new-task/index.html?' + nparams.toString(),
+    width: 500,
+    height: 280,
+    type: 'popup'
+}).then(() => { closeTab(); });

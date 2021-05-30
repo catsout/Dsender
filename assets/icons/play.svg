@@ -1,4 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><g fill="context-fill"><path d="M8 2a6 6 0 1 0 6 6 6.007 6.007 0 0 0-6-6zm0 11a5 5 0 1 1 5-5 5.006 5.006 0 0 1-5 5z"></path><path d="M6.75 4.969A.5.5 0 0 0 6 5.4v5.2a.5.5 0 0 0 .75.433l4.5-2.6a.5.5 0 0 0 0-.866z"></path></g></svg>
+
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="play.svg"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs12" />
+  <sodipodi:namedview
+     id="namedview10"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="40.625"
+     inkscape:cx="4.4676923"
+     inkscape:cy="7.9876923"
+     inkscape:window-width="1868"
+     inkscape:window-height="1051"
+     inkscape:window-x="52"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg8" />
+  <path
+     d="M 4.0927151,2.0765267 A 0.97682645,0.97682645 0 0 0 2.6274755,2.9185511 V 13.077546 a 0.97682645,0.97682645 0 0 0 1.4652396,0.845931 L 12.884154,8.8439809 a 0.97682645,0.97682645 0 0 0 0,-1.6918641 z"
+     id="path1080-6"
+     style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke-width:1.95365" />
+</svg>

@@ -1,8 +1,9 @@
-import { TaskParams, Tp2pParmas, TurlParmas } from '../../common.js';
+import { TaskParams, TbtParmas, TurlParmas } from '../../common.js';
 import { DownloaderBase } from '../../lib/downloader-base.js';
 import { MessagePort } from '../../lib/message.js';
 import '../../lib/widget-button.js';
 import '../../lib/widget-messagebar.js';
+import '../../lib/widget-checkbox.js';
 
 var backport = new MessagePort();
 backport.connect('request');
@@ -15,21 +16,40 @@ const params = new URLSearchParams(window.location.search);
 var popup = params.get('popup') === 'true';
 var cookie = params.get('cookie');
 
+const durls = document.querySelector('#texturls');
 const durl = document.querySelector('#texturl');
 const dname = document.querySelector('#name');
 const dreferer = document.querySelector('#referer');
 const dua = document.querySelector('#useragent')
+const pagetype = params.get('type') || 'urls';
 
-if(params.has('url')) {
-  document.querySelectorAll('.part').forEach((el) => el.classList.add('hidden'));
-  document.querySelector('#url.part').classList.remove('hidden');
+function showEl(...els) {
+  els.forEach((el) => {
+    const del = document.querySelector(el);
+    if(del) {
+      del.classList.remove('hidden');
+    }
+  });
+}
+
+if(pagetype === 'bt') {
+  showEl('#urls.part', '#torrent.part', '#btoption');
+  durls.placeholder = 'Magnet url, one url per line.';
+}
+else if(pagetype === 'btMagnet') {
+  showEl('#url.part', '#btoption');
+  durl.value = params.get('magnet');
+  dname.value = params.get('name');
+}
+else if(pagetype === 'url') {
+  showEl('#url.part', '#option');
   durl.value = params.get('url');
   dname.value = params.get('name');
   dreferer.value = params.get('referer');
   dua.value = params.get('ua');
   newType = 'url';
-} else {
-  document.querySelector('#urls.part').classList.remove('hidden');
+} else if(pagetype === 'urls'){
+  showEl('#urls.part', '#option');
 }
 
 if(params.has('popup')) {
@@ -98,13 +118,13 @@ function addCallback(result) {
 
 document.querySelector('#submit').addEventListener('click', function(event) {
   if(!checkInputs()) return;
-  const path = document.querySelector('#path').value;
-  const threads = parseInt(document.querySelector('#threads').value, 10);
-  const minsplit = parseInt(document.querySelector('#minsplit').value, 10);
-  const tparams = new TaskParams(
-    dname.value,
-    path,
-    new TurlParmas(
+  const path = document.querySelector('#path').value; 
+  const tparams = new TaskParams(dname.value, path);
+
+  if(pagetype === 'urls' || pagetype === 'url') {
+    const threads = parseInt(document.querySelector('#threads').value, 10);
+    const minsplit = parseInt(document.querySelector('#minsplit').value, 10);
+    tparams.urlParams = new TurlParmas(
       null,
       {
         'Referer': dreferer.value,
@@ -113,18 +133,32 @@ document.querySelector('#submit').addEventListener('click', function(event) {
       },
       Number.isNaN(threads)?null:threads,
       Number.isNaN(minsplit)?null:minsplit
-    )
-  )
+    );
 
-  if(newType === 'urls') {
-    document.querySelector('#texturls').value.split('\n').forEach((el) => {
-      if(!el) return;
-      tparams.urlParmas.url = el;
+    if(pagetype === 'urls') {
+      durls.value.split('\n').forEach((el) => {
+        if(!el) return;
+        tparams.urlParams.url = el;
+        addTask(tparams).then(addCallback);
+      });
+    } else if(pagetype === 'url') {
+      tparams.urlParams.url = durl.value;
       addTask(tparams).then(addCallback);
-    });
-  } else if(newType === 'url') {
-    tparams.urlParmas.url = durl.value;
-    addTask(tparams).then(addCallback);
+    }
+  } else {
+    const firstLastPiece = document.querySelector('#firstLastPiece').checked;
+    const sequential = document.querySelector('#sequential').checked;
+    if(pagetype === 'bt') {
+      durls.value.split('\n').forEach((el) => {
+        if(DownloaderBase.isMagnet(el)) {
+          tparams.btParams = new TbtParmas(el, null, sequential, firstLastPiece);
+          addTask(tparams).then(addCallback);
+        }
+      })
+    } else {
+      tparams.btParams = new TbtParmas(durl.value, dname.value, sequential, firstLastPiece);
+      addTask(tparams).then(addCallback);
+    }
   }
 });
 

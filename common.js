@@ -26,6 +26,11 @@ Object.freeze(ETaskStats);
 Object.freeze(EDownloaderType);
 Object.freeze(EDownloaderStats);
 
+function taskUnAvailable(stats) {
+    return stats === ETaskStats.offline || stats === ETaskStats.removed || 
+        stats === ETaskStats.unknown || stats === ETaskStats.waiting;
+}
+
 class DownloaderStatus {
     /**
      * 
@@ -95,7 +100,7 @@ class TurlParmas {
         this.minsplit = minsplit||null;
     }
 }
-class Tp2pParmas {
+class TbtParmas {
     constructor(magnetUrl, torrentData, sequential, firstLastPiece) {
         this.magnetUrl = magnetUrl||null;
         this.torrentData = torrentData||null;
@@ -109,49 +114,44 @@ class TaskParams {
      * 
      * @param {String} name 
      * @param {String} dir 
-     * @param {TurlParmas|null} urlParmas 
-     * @param {Tp2pParmas|null} p2pParmas 
+     * @param {TurlParmas|null} urlParams 
+     * @param {TbtParmas|null} btParams 
      */
-    constructor(name, dir, urlParmas, p2pParmas) {
+    constructor(name, dir, urlParams, btParams) {
         this.name = name||'';
         this.dir = dir||'';
-        this.urlParmas = urlParmas||null;
-        this.p2pParmas = p2pParmas||null;
+        this.urlParams = urlParams||null;
+        this.btParams = btParams||null;
+    }
+}
+
+class TbtStatus {
+    constructor(uploadSpeed) {
+        this.uploadSpeed = uploadSpeed || 0;
     }
 }
 
 class TaskStatus {
     /**
      *
-     * @param {string} name 
-     * @param {string} stats 
-     * @param {number} downloadLength
-     * @param {number} totalLength
-     * @param {number} downloadSpeed
+     * @param {String} name 
+     * @param {String} stats 
+     * @param {Number} downloadLength
+     * @param {Number} totalLength
+     * @param {Number} downloadSpeed
+     * @param {TbtStatus} btStatus
      */
-    constructor(name, stats, downloadLength, totalLength, downloadSpeed) {
+    constructor(name, stats, downloadLength, totalLength, downloadSpeed, btStatus) {
         this.name = name || 'unknown';
         this.stats = stats || ETaskStats.unknown;
         this.downloadLength = downloadLength;
         this.totalLength = totalLength;
         this.downloadSpeed = downloadSpeed;
         this.newStatus = true;
+        this.btStatus = btStatus||null;
     }
 }
-class p2pTaskStatus extends TaskStatus {
-    /**
-     *
-     * @param {string} name 
-     * @param {string} stats 
-     * @param {number} downloadLength
-     * @param {number} totalLength
-     * @param {number} downloadSpeed
-     */
-    constructor(name, stats, downloadLength, totalLength, downloadSpeed, uploadSpeed) {
-        super(name, stats, downloadLength, totalLength, downloadSpeed);
-        this.uploadSpeed = uploadSpeed || 0;
-    }
-}
+
 
 class TaskItem {
     /**
@@ -204,9 +204,9 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
-
-export {Tp2pParmas, TurlParmas};
-export {DownloaderStatus, Task, TaskParams, TaskStatus, TaskItem, p2pTaskStatus, ETaskStats};
+export {TbtParmas, TurlParmas, TbtStatus};
+export {taskUnAvailable};
+export {DownloaderStatus, Task, TaskParams, TaskStatus, TaskItem, ETaskStats};
 export {DownloaderConfig, EDownloaderType, EDownloaderStats};
 export {basename, capitalize, getRandomInt};
 export {base64, base64decode};

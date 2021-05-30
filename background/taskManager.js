@@ -1,4 +1,4 @@
-import { DownloaderConfig, EDownloaderType, ETaskStats, TaskItem, TaskParams } from "../common.js";
+import { DownloaderConfig, EDownloaderStats, EDownloaderType, ETaskStats, TaskItem, TaskParams } from "../common.js";
 import Aria2 from "../lib/downloader-aria2.js";
 import { QBittorrent } from "../lib/downloader-qbittorrent.js";
 
@@ -24,8 +24,12 @@ class TaskManager {
             return Promise.reject(`Downloader ${downloader} not found`);
 
         const der = this._downloaderMap.get(downloader);
-        if( true) {
+        if(taskparams.urlParams) {
             taskPromise = der.addTask(taskparams);
+        } else if(taskparams.btParams) {
+            taskPromise = der.addBtTask(taskparams);
+        } else {
+            return Promise.reject('Create task error');
         }
         if(taskPromise === null)
             return Promise.reject();
@@ -48,6 +52,16 @@ class TaskManager {
         return Promise.resolve(true);
     }
 
+    taskAction(cmd, task) {
+        if(!this._downloaderMap.has(task.downloader))
+            return Promise.reject(`${task.downloader} not available`);
+        const der = this._downloaderMap.get(task.downloader);
+        if(der[cmd]) {
+            return der[cmd](task);
+        }
+        return Promise.reject(`${task.downloader} not support this action`);
+    }
+
     _groupTasks() {
         const derTaskMap = new Map();
         this._tasklist.forEach((el) => {
@@ -61,16 +75,32 @@ class TaskManager {
     }
 
     updateStatus(refresh) {
+        this._downloaderMap.forEach((der, k) => {
+            if(der.status.stats === EDownloaderStats.ok || refresh) {
+                der.healthCheck().catch((e) => {
+                    console.log(`${der.name} error`);
+                });
+            }
+        });
         this._groupTasks().forEach((v, k) => {
             const taskItems = refresh? v : v.filter(function(el) {
                 const stats = el.status.stats;
                 return !(stats === ETaskStats.error || stats === ETaskStats.complete || stats === ETaskStats.removed);
             });
             if(this._downloaderMap.has(k)) {
-                this._downloaderMap.get(k).sync(taskItems);
+                const der = this._downloaderMap.get(k);
+                if(der.status.stats === EDownloaderStats.ok)
+                    this._downloaderMap.get(k).sync(taskItems);
+                else {
+                    taskItems.forEach(function(el) {
+                        el.status.stats = ETaskStats.offline;
+                        el.status.newStatus = true;
+                    });
+                }
             } else {
                 taskItems.forEach(function(el) {
                     el.status.stats = ETaskStats.removed;
+                    el.status.newStatus = true;
                 });
             }
             if(refresh) {

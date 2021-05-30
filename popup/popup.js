@@ -57,6 +57,18 @@ $('#enable').addEventListener('change', (e) => {
   browser.storage.local.set({enableCap: checkd});
 });
 
+$('#newBt').addEventListener('click', (e) => {
+  const params = new URLSearchParams({popup: true, type: 'bt'})
+  browser.windows.create({
+    url: '/pages/new-task/index.html?' + params.toString(),
+    width: 500,
+    height: 340,
+    type: 'popup'
+  });
+});
+
+
+
 function updateDerStatus(status) {
   let globalStatus = new DownloaderStatus();
   const statsList = [];

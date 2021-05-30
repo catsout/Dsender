@@ -16,16 +16,18 @@
         textarea {
           box-sizing: border-box;
           width: 100%;
-          margin: 5px;
+          margin: 5px 0px;
         }
         label {
           display: inline-block;
           text-align: right;
-          min-width: 100px;
+          min-width: 80px;
+          padding: 0;
         }
         input {
           display: inline-block;
           margin: 5px 0px;
+          padding: 0;
           box-sizing: border-box;
         }
         label.nopad {
@@ -46,6 +48,7 @@
         .flex {
           display: flex;
           align-items: center;
+          white-space: pre-wrap;
         }
         .flex > input {
           flex: 1;
@@ -55,15 +58,20 @@
           min-width: 50px;
           margin: 5px 0px;
         }
+        widget-checkbox {
+          margin: 5px 0px;
+          margin-left: 66px;
+        }
     </style>
   </head>
 <body>
     <widget-messagebox></widget-messagebox>
     <div id="urls" class="part hidden">
-      <textarea id="texturls" cols="40" rows="5" placeholder="One URL per line."></textarea>
+      <textarea id="texturls" cols="40" rows="4" placeholder="One url per line."></textarea>
     </div>
     <div id="torrent" class="part hidden">
-      <input type="file" id="myFile" name="filename">
+      <label for="torrentFile">Torrent File:</label>
+      <input type="file" id="torrentFile" name="torrent">
     </div>
     <div id="url" class="part hidden">
       <div class="flex">
@@ -77,12 +85,12 @@
     </div>
 
     <div id="common">
-      <label for="path">Download path:</label>
+      <label for="path">Save path:</label>
       <input id="path" type="text" placeholder="default"><div></div>
       <label for="selectDown">Send to:</label>
       <select id="selectDown"></select>
     </div>
-    <div id="option">
+    <div id="option" class="hidden">
       <div class="flex">
         <label for="referer">Referer:</label>
         <input type="text" id="referer">
@@ -99,7 +107,11 @@
         <label for="minsplit">Min split size:</label>
         <input style="width: 50px;" type="number" id="minsplit" placeholder="--"><span> M</span>
       </div>
-    </div>  
+    </div>
+    <div id="btoption" class="hidden">
+      <widget-checkbox id="firstLastPiece">Download first and last pieces first</widget-checkbox>
+      <widget-checkbox id="sequential">Download in sequential order</widget-checkbox>
+    </div>
     <div id="footer">
       <div></div>
       <div></div>

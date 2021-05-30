@@ -13,15 +13,15 @@ function createDownCallback({url, name, referer, size}) {
   browser.cookies.getAll({url: referer}).then((cookies) => {
     const cookie = cookies.map((el) => el.name+'='+el.value).join('; ');
     const params = new URLSearchParams({
-      url, name, referer, size,
-      cookie, 
+      url, referer, cookie, 
       ua: window.navigator.userAgent, 
+      name,size, type: 'url',
       popup: 'true'
     });
     browser.windows.create({
       url: '/pages/new-task/index.html?' + params.toString(),
       width: 600,
-      height: 320,
+      height: 400,
       type: 'popup'
     });
   });
@@ -131,15 +131,13 @@ browser.runtime.onConnect.addListener(function(port) {
           sendOk(dsender.tmgr.getDownloaderStatus());
         }
         else if(cmd === 'removeTask') {
-          dsender.tmgr.removeTask(data).then(function() {sendOk(true)});
+          dsender.tmgr.removeTask(data).then(sendOk, sendError);
         } else if(cmd === 'deleteTask') {
-          dsender.tmgr.removeTask(data, true).then(function() {sendOk(true)});
+          dsender.tmgr.removeTask(data, true).then(sendOk, sendError);
         } else if(cmd === 'pauseTask' || cmd === 'resumeTask') {
-          //execApi(cmd, null, data);
+          dsender.tmgr.taskAction(cmd, data).then(sendOk, sendError);
         } else if(cmd === 'addTask') {
-          dsender.tmgr.addTask(data.params, data.downloader).then(function(result) {
-            sendOk(result); 
-          });
+          dsender.tmgr.addTask(data.params, data.downloader).then(sendOk, sendError);
         } 
       });
       port.onDisconnect.addListener(function(p) { p.disconnected = true; })
@@ -149,7 +147,23 @@ browser.runtime.onConnect.addListener(function(port) {
 
 browser.contextMenus.create({
   id: "send",
-  title: "Send to ...",
+  title: "Send with Dsender",
   contexts: ['link'],
   documentUrlPatterns: ['*://*/*']
+});
+
+browser.contextMenus.onClicked.addListener(function(info, tab) {
+  if (info.menuItemId == "send") {
+    if(DownloaderBase.isMagnet(info.linkUrl)) {
+      const params = new URLSearchParams({popup: true, type: 'btMagnet', magnet: info.linkUrl});
+      browser.windows.create({
+        url: '/pages/new-task/index.html?' + params.toString(),
+        width: 500,
+        height: 280,
+        type: 'popup'
+      });
+    } else {
+      createDownCallback({ url: info.linkUrl, name: DownloaderBase.getMagnetInfo(info.linkUrl).name, referer: info.pageUrl, size: null});
+    }
+  }
 });
