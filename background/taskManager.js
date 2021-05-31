@@ -90,7 +90,10 @@ class TaskManager {
             if(this._downloaderMap.has(k)) {
                 const der = this._downloaderMap.get(k);
                 if(der.status.stats === EDownloaderStats.ok)
-                    this._downloaderMap.get(k).sync(taskItems);
+                    this._downloaderMap.get(k).sync(taskItems).then((result) => {
+                        if(result)
+                            this.saveTasksToConf();
+                    });
                 else {
                     taskItems.forEach(function(el) {
                         el.status.stats = ETaskStats.offline;

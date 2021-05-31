@@ -61,14 +61,16 @@ class DownloaderStatus {
 class Task {
     /**
      * 
-     * @param {string} name 
-     * @param {string} downloader 
-     * @param {string} key 
+     * @param {String} name 
+     * @param {String} downloader 
+     * @param {String} key 
+     * @param {Boolean} bt
      */
-    constructor(name, downloader, key) {
+    constructor(name, downloader, key, bt) {
         this.name = name || 'unknown';
         this.downloader = downloader;
         this.key = key;
+        this.bt = bt||false;
     }
 
     /**
@@ -101,11 +103,12 @@ class TurlParmas {
     }
 }
 class TbtParmas {
-    constructor(magnetUrl, torrentData, sequential, firstLastPiece) {
+    constructor(magnetUrl, torrentData, sequential, firstLastPiece, hash) {
         this.magnetUrl = magnetUrl||null;
         this.torrentData = torrentData||null;
         this.sequential = sequential||false;
         this.firstLastPiece = firstLastPiece||false;
+        this.hash = hash;
     }
 }
 
