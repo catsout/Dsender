@@ -137,8 +137,16 @@ browser.runtime.onConnect.addListener(function(port) {
         } else if(cmd === 'pauseTask' || cmd === 'resumeTask') {
           dsender.tmgr.taskAction(cmd, data).then(sendOk, sendError);
         } else if(cmd === 'addTask') {
-          dsender.tmgr.addTask(data.params, data.downloader).then(sendOk, sendError);
-        } 
+          const p = data.params;
+          if(p.btParams && p.btParams.torrentData) {
+            fetch(p.btParams.torrentData).then((r) => r.blob()).then((r) => {
+              p.btParams.torrentData = r;
+              return dsender.tmgr.addTask(data.params, data.downloader);
+            }).then(sendOk, sendError);
+          } else  {
+            dsender.tmgr.addTask(data.params, data.downloader).then(sendOk, sendError);
+          }
+        }
       });
       port.onDisconnect.addListener(function(p) { p.disconnected = true; })
     }

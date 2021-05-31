@@ -1,6 +1,11 @@
 import { TaskParams, TbtParmas, TurlParmas } from '../../common.js';
 import { DownloaderBase } from '../../lib/downloader-base.js';
 import { MessagePort } from '../../lib/message.js';
+
+import { genTorrentHash } from '../../lib/torrent.js';
+import { bencode } from '../../lib/bencode.js';
+
+
 import '../../lib/widget-button.js';
 import '../../lib/widget-messagebar.js';
 import '../../lib/widget-checkbox.js';
@@ -94,24 +99,24 @@ function checkInputs() {
 
 
 function addTask(params) {
-  const pmAddTask = backport.send({
+  return backport.send({
     command: 'addTask',
     data: {
       downloader: selectDown.value,
       params: params
     }
+  }).then((result) => {
+    browser.notifications.create({
+      "type": "basic",
+      "title": 'send',
+      "iconUrl": '../../assets/icon.svg',
+      "message": `send download ${result.name} to ${result.downloader}`
+    });
   });
-  return msgbox.sendWait(pmAddTask, 'adding task');
 }
 
 function addCallback(result) {
   if(!result) return;
-  browser.notifications.create({
-    "type": "basic",
-    "title": 'send',
-    "iconUrl": '../../assets/icon.svg',
-    "message": `send download ${result.name} to ${result.downloader}`
-  });
   if(popup) window.close();
   else if(dpageroute) dpageroute.back();
 }
@@ -121,6 +126,7 @@ document.querySelector('#submit').addEventListener('click', function(event) {
   const path = document.querySelector('#path').value; 
   const tparams = new TaskParams(dname.value, path);
 
+  const promises = [];
   if(pagetype === 'urls' || pagetype === 'url') {
     const threads = parseInt(document.querySelector('#threads').value, 10);
     const minsplit = parseInt(document.querySelector('#minsplit').value, 10);
@@ -139,11 +145,11 @@ document.querySelector('#submit').addEventListener('click', function(event) {
       durls.value.split('\n').forEach((el) => {
         if(!el) return;
         tparams.urlParams.url = el;
-        addTask(tparams).then(addCallback);
+        promises.push(addTask(tparams));
       });
     } else if(pagetype === 'url') {
       tparams.urlParams.url = durl.value;
-      addTask(tparams).then(addCallback);
+      promises.push(addTask(tparams));
     }
   } else {
     const firstLastPiece = document.querySelector('#firstLastPiece').checked;
@@ -151,14 +157,38 @@ document.querySelector('#submit').addEventListener('click', function(event) {
     if(pagetype === 'bt') {
       durls.value.split('\n').forEach((el) => {
         if(DownloaderBase.isMagnet(el)) {
+          const m = DownloaderBase.getMagnetInfo(el);
           tparams.btParams = new TbtParmas(el, null, sequential, firstLastPiece);
-          addTask(tparams).then(addCallback);
+          tparams.name = m.name;
+          tparams.btParams.hash = m.hash;
+          promises.push(addTask(tparams));
         }
-      })
+      });
+      const file = document.querySelector('input[type=file]').files[0];
+      if(file) {
+        const t = URL.createObjectURL(file);
+        promises.push(fetch(t).then((r) => r.arrayBuffer()).then((r) => {
+            const array = new Uint8Array(r);
+            const torrent = bencode.decode(array);
+            const hash = genTorrentHash(array);
+            return {name: torrent.info.name, hash: hash};
+        }).then(({name, hash}) => {
+          tparams.btParams = new TbtParmas(null, t, sequential, firstLastPiece);
+          tparams.btParams.hash = hash;
+          tparams.name = name;
+          return addTask(tparams);
+        }));
+      }
     } else {
       tparams.btParams = new TbtParmas(durl.value, dname.value, sequential, firstLastPiece);
-      addTask(tparams).then(addCallback);
+      const m = DownloaderBase.getMagnetInfo(durl.value);
+      tparams.btParams.hash = m.hash;
+      promises.push(addTask(tparams));
     }
+    
+  }
+  if(promises.length > 0) {
+    msgbox.sendWait(Promise.all(promises), 'adding task').then(addCallback);
   }
 });
 

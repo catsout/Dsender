@@ -64,6 +64,10 @@ class TaskManager {
 
     _groupTasks() {
         const derTaskMap = new Map();
+        // create empty for all downloader to make sure sync downloader status
+        this._downloaderMap.forEach((v, k) => {
+            derTaskMap.set(k, []);
+        });
         this._tasklist.forEach((el) => {
             if(!derTaskMap.has(el.task.downloader)) {
                 derTaskMap.set(el.task.downloader, []);
@@ -75,6 +79,7 @@ class TaskManager {
     }
 
     updateStatus(refresh) {
+        // health check to set downloader status
         this._downloaderMap.forEach((der, k) => {
             if(der.status.stats === EDownloaderStats.ok || refresh) {
                 der.healthCheck().catch((e) => {
@@ -83,29 +88,36 @@ class TaskManager {
             }
         });
         this._groupTasks().forEach((v, k) => {
+            // filter taskitems if not fullsync
             const taskItems = refresh? v : v.filter(function(el) {
                 const stats = el.status.stats;
                 return !(stats === ETaskStats.error || stats === ETaskStats.complete || stats === ETaskStats.removed);
             });
+
             if(this._downloaderMap.has(k)) {
                 const der = this._downloaderMap.get(k);
-                if(der.status.stats === EDownloaderStats.ok)
+                if(der.status.stats === EDownloaderStats.ok) {
+                    // sync
                     this._downloaderMap.get(k).sync(taskItems).then((result) => {
                         if(result)
-                            this.saveTasksToConf();
+                            this.saveTasksToConf();  // the task has changed
                     });
+                }
                 else {
+                    // mark offline for downloader not ok
                     taskItems.forEach(function(el) {
                         el.status.stats = ETaskStats.offline;
                         el.status.newStatus = true;
                     });
                 }
             } else {
+                // mark removed for no downloader
                 taskItems.forEach(function(el) {
                     el.status.stats = ETaskStats.removed;
                     el.status.newStatus = true;
                 });
             }
+
             if(refresh) {
                 taskItems.forEach(function(el) {
                     el.status.newStatus = true;
