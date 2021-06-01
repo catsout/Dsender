@@ -1,5 +1,5 @@
 # Dsender
-A browser extension that send and manage downloads for aria2,qbittorrent.
+A firefox extension that send and manage downloads for aria2,qbittorrent.
 
 Firefox: https://addons.mozilla.org/en-US/firefox/addon/dsender
 
