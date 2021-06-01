@@ -2,7 +2,7 @@ import { basename } from "../common.js";
 import { parseContentDisposition } from '../lib/content-disposition.js';
 
 const exclude_content_type = new Set([
-    "x-xpinstall"
+    'x-xpinstall', 'javascript', 'x-javascript', 'ecmascript', 'x-ecmascript'
 ]);
 // content_type removed params
 function checkContentTypeInclude(content_type) {

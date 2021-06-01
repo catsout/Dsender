@@ -171,7 +171,7 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
         type: 'popup'
       });
     } else {
-      createDownCallback({ url: info.linkUrl, name: DownloaderBase.getMagnetInfo(info.linkUrl).name, referer: info.pageUrl, size: null});
+      createDownCallback({ url: info.linkUrl, name: '', referer: info.pageUrl, size: null});
     }
   }
 });

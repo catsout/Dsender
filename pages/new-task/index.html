@@ -42,9 +42,6 @@
         #footer widget-button{
           margin: 0px 10px;
         }
-        .hidden {
-          display: none;
-        }
         .flex {
           display: flex;
           align-items: center;
@@ -62,6 +59,12 @@
           margin: 5px 0px;
           margin-left: 66px;
         }
+        input[type="text"] {
+          height: 16px;
+        }
+        .hidden {
+          display: none;
+        }
     </style>
   </head>
 <body>
@@ -69,9 +72,9 @@
     <div id="urls" class="part hidden">
       <textarea id="texturls" cols="40" rows="4" placeholder="One url per line."></textarea>
     </div>
-    <div id="torrent" class="part hidden">
+    <div id="torrent" class="part hidden flex">
       <label for="torrentFile">Torrent File:</label>
-      <input type="file" id="torrentFile" name="torrent">
+      <input style="flex: 1;" type="file" id="torrentFile" name="torrent">
     </div>
     <div id="url" class="part hidden">
       <div class="flex">
