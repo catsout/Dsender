@@ -10,7 +10,8 @@
           margin: 0;
           padding: 5px 10px;
           font-family: Sans-Serif;
-          font-size: 13px;
+          --font-s: 13px;
+          font-size: var(--font-s);
           user-select: none;
         }
         textarea {
@@ -27,8 +28,8 @@
         input {
           display: inline-block;
           margin: 5px 0px;
-          padding: 0;
           box-sizing: border-box;
+          font-size: var(--font-s);
         }
         label.nopad {
           min-width: unset;
@@ -52,15 +53,13 @@
           margin-left: 5px;
         }
         select {
-          min-width: 50px;
+          min-width: 60px;
           margin: 5px 0px;
+          font-size: var(--font-s);
         }
         widget-checkbox {
           margin: 5px 0px;
           margin-left: 66px;
-        }
-        input[type="text"] {
-          height: 16px;
         }
         .hidden {
           display: none;
@@ -104,11 +103,11 @@
       </div>
       <div>
         <label for="threads">Threads:</label>
-        <input style="width: 50px;" type="number" id="threads" placeholder="--">
+        <input style="width: 60px;" type="number" id="threads" placeholder="--">
       </div>
       <div>
         <label for="minsplit">Min split size:</label>
-        <input style="width: 50px;" type="number" id="minsplit" placeholder="--"><span> M</span>
+        <input style="width: 60px;" type="number" id="minsplit" placeholder="--"><span> M</span>
       </div>
     </div>
     <div id="btoption" class="hidden">
