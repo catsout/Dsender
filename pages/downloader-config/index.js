@@ -1,5 +1,6 @@
 import '../../lib/widget-button.js';
-import '../../lib/widget-messagebar.js';
+import '../../lib/widget-checkbox.js';
+import { WidgetMessageBox } from '../../lib/widget-messagebar.js';
 
 import { DownloaderConfig,EDownloaderType } from '../../common.js';
 import { DownloaderBase } from '../../lib/downloader-base.js';
@@ -14,9 +15,12 @@ var changeds = new Set();
 var defaultConfig = {}
 
 var saveBut = document.querySelector('#submit');
+
+/**@type {WidgetMessageBox} */
 var msgbox = document.querySelector('widget-messagebox');
 var dextra = document.querySelector('#extra');
 var selectType = document.querySelector('#selectType');
+var dtls = document.querySelector('#tls');
 
 function getInputs() {
     return document.querySelectorAll('#content input');
@@ -27,6 +31,7 @@ function loadConfigToDom(config) {
         selectType.value = config.type;
         selectTypeChange();
     }
+    dtls.checked = config.data.tls;
     getInputs().forEach(function(el) {
         if(el.hasAttribute('readonly') && el.value) return;
         if(el.id === 'name')
@@ -72,7 +77,9 @@ function selectTypeChange(event) {
 selectType.addEventListener('change', selectTypeChange);
 selectTypeChange();
 
-let params = new URLSearchParams(window.location.search);
+dtls.addEventListener('change', inputChanged);
+
+const params = new URLSearchParams(window.location.search);
 var argName = params.get('name');
 if(argName) {
     saveBut.classList.add('disabled');
@@ -130,6 +137,7 @@ document.querySelector('#submit').addEventListener('click', function(event) {
             else
                 config.data[el.id] = el.value;
         });
+        config.data.tls = dtls.checked;
         const key = DownloaderBase.nameToId(config.name);
         const storage = {};
         item.downloaderList = item.downloaderList || [];
@@ -146,7 +154,11 @@ document.querySelector('#submit').addEventListener('click', function(event) {
             storage.downloaderList.push(key);
         }
         storage[key] = config;
-        browser.storage.local.set(storage);
-        msgbox.send('Saved', 'success', null, 3000);
+        const psave = browser.storage.local.set(storage).then(function() {
+            setTimeout(function(){ backport.send({command: 'refresh'}); }, 500);
+        });
+        msgbox.sendWait(psave).then(function(result) {
+            msgbox.send('Saved', 'success', null, 3000);
+        });
     });
 });

@@ -26,8 +26,7 @@ var switchEnable = $('#enable');
 var msgbox = $('widget-messagebox');
 
 dsetting.addEventListener('click', (event) => {
-  const path = '/pages/setting/index.html';
-  dpageroute.goToggle(path);
+  dpageroute.goToggle('/pages/setting/index.html');
 });
 
 drouteBackBtn.addEventListener('click', (e) => {

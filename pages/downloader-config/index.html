@@ -18,11 +18,14 @@
         label {
           margin: 5px 0px 2px 0px;
         }
+        input {
+          margin-bottom: 5px;
+        }
         span {
           display: inline-block;
         }
         #port {
-          width: 50px;
+          width: 60px;
         }
         #footer {
           display: flex;
@@ -32,30 +35,33 @@
         input,select {
           font-size: 13px;
         }
+        widget-checkbox {
+          margin: 10px 0px;
+        }
     </style>
   </head>
 
 <body>
     <template class="aria2">
-      <label for="token">token:</label><input id="token" type="password">
+      <label for="token">Token:</label><input id="token" type="password">
     </template>
     <template class="qbittorrent">
-      <label for="username">username:</label><input id="username" type="text" required>
-      <label for="password">password:</label><input id="password" type="password">
+      <label for="username">Username:</label><input id="username" type="text" required>
+      <label for="password">Password:</label><input id="password" type="password">
     </template>
 
     <widget-messagebox></widget-messagebox>
     <div id="content">
       <div id="common">
-      <span><label for="name">name:</label><input id="name" type="text" required></span>
-      <span><label for="selectType">type:</label><select id="selectType"></select></span>
-      <div></div>
-      <span><label for="host">host:</label><input id="host" type="text" required></span>
-      <span><label for="port">port:</label><input id="port" type="number"></span>
-      <label for="path">path:</label><input id="path" type="text">
+        <span><label for="name">Name:</label><input id="name" type="text" required></span>
+        <span><label for="selectType">Type:</label><select id="selectType"></select></span>
+        <div></div>
+        <span><label for="host">Host:</label><input id="host" type="text" required></span>
+        <span><label for="port">Port:</label><input id="port" type="number"></span>
+        <label for="path">Path:</label><input id="path" type="text">
+        <widget-checkbox id="tls">SSL/TLS</widget-checkbox>
       </div>
       <div id="extra">
-          <label for="token">token:</label><input id="token" type="password">
       </div>
       <div id="footer">
         <div></div>

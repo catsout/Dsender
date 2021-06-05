@@ -1,109 +1,19 @@
 'use strict';
 
 import { Dsender } from './dsender.js';
-import { DownloaderTaker } from './downloadTaker.js';
 
 import { DownloaderBase } from '../lib/downloader-base.js';
 
 var dsender = new Dsender();
-dsender.tmgr.updateInterval = 1000;
 
-
-function createDownCallback({url, name, referer, size}) {
-  browser.cookies.getAll({url: referer}).then((cookies) => {
-    const cookie = cookies.map((el) => el.name+'='+el.value).join('; ');
-    const params = new URLSearchParams({
-      url, referer, cookie, 
-      ua: window.navigator.userAgent, 
-      name,size, type: 'url',
-      popup: 'true'
-    });
-    browser.windows.create({
-      url: '/pages/new-task/index.html?' + params.toString(),
-      width: 600,
-      height: 400,
-      type: 'popup'
-    });
-  });
-};
-var dTaker = new DownloaderTaker(createDownCallback);
-
-function setMonitor(enable) {
-  if(enable)
-    dTaker.startMonitor({webrequest: true});
-  else
-    dTaker.stopMonitor();
-}
-
-var defaultDerName = '';
-
-// get all config
-browser.storage.local.get(['enableCap', 'defaultDownloader']).then(item => {
-  if(typeof(item.enableCap) === 'boolean') {
-    setMonitor(item.enableCap);
-  }
-  if(item.defaultDownloader) {
-    defaultDerName = item.defaultDownloader;
-  } 
-});
-
-var storageListeners = new Map();
-function addStorageListener(keymatch, add, remove, change) {
-  const empty = function() {};
-  storageListeners.set(keymatch, {add: add||empty, remove: remove||empty, change: change||empty});
-}
-
-addStorageListener('enableCap',
-  (key, value) => setMonitor(value.newValue),
-  null,
-  (key, value) => setMonitor(value.newValue)
-)
-
-addStorageListener('downloader_', 
-  function(key, value) {
-    dsender.tmgr.setDownloader(value.newValue);
-  },
-  function(key, value) {
-    const name = DownloaderBase.idToName(key);
-    dsender.tmgr.removeDownloader(name);
-  },
-  function(key, value) {
-    dsender.tmgr.setDownloader(value.newValue);
-  }
-)
-addStorageListener('defaultDownloader',
-  function(key, value) {
-    console.log(value);
-    defaultDerName = value.newValue;
-  },
-  null,
-  function(key, value) {
-    console.log(value);
-    defaultDerName = value.newValue;
-  }
-); 
-
-browser.storage.onChanged.addListener(function(changes, area) {
-  storageListeners.forEach(function(svalue, key) {
-    const rename = new RegExp(key);
-    Object.entries(changes).forEach(function([key, value]) {
-      if(key.match(rename)) {
-        if(typeof(value.oldValue) === 'undefined')
-          svalue.add(key, value);
-        else if(typeof(value.newValue) === 'undefined')
-          svalue.remove(key, value);
-        else
-          svalue.change(key, value);
-      }
-    });
-  });
-});
-
-
-// connections 
-var popupPort = null;
 
 browser.runtime.onConnect.addListener(function(port) {
+    if(port.name === 'popup') {
+      dsender.tmgr.updateInterval = 1000;
+      port.onDisconnect.addListener(function() {
+        dsender.tmgr.updateInterval = 3000;
+      })
+    }
     if(port.name === 'request') {
       port.onMessage.addListener((message) => {
         if(typeof(message.id) !== 'number') return;
@@ -136,6 +46,9 @@ browser.runtime.onConnect.addListener(function(port) {
           dsender.tmgr.removeTask(data, true).then(sendOk, sendError);
         } else if(cmd === 'pauseTask' || cmd === 'resumeTask') {
           dsender.tmgr.taskAction(cmd, data).then(sendOk, sendError);
+        } else if(cmd === 'refresh') {
+          dsender.tmgr.updateStatus(true);
+          sendOk();
         } else if(cmd === 'addTask') {
           const p = data.params;
           if(p.btParams && p.btParams.torrentData) {
@@ -175,3 +88,5 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
     }
   }
 });
+
+dsender.tmgr.updateInterval = 3000;

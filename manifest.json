@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "version": "0.1.2",
+    "version": "0.1.4",
   
     "name": "__MSG_extensionName__",
     "description": "__MSG_extensionDescription__",
@@ -35,10 +35,5 @@
           "name": "Dsender",
           "uriTemplate": "/pages/protocol/magnet.html?url=%s"
         }
-    ],
-
-    "developer": {
-       "name": "catsout",
-       "url": "https://github.com/catsout/Dsender"
-    }
+    ]
 }

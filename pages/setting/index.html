@@ -6,12 +6,30 @@
     <style>
       body {
         font-family: Sans-Serif;
-        font-size: 16px;
+        font-size: 14px;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      .table {
+        display: grid;
+        grid-template-columns: 5fr 1fr;
+        row-gap: 20px;
+        align-items: center;
+        grid-auto-rows: min-content;
+        grid-template-areas: "info action";
+
+        box-sizing: border-box;
+        padding: 30px;
       }
     </style>
   </head>
 <body>
-  <span>nothing</span>
+    <div class="table">
+      <span class="info">Show a notification when download complete</span>
+      <widget-switch class="action" id="completeNotify"></widget-switch>
+    </div>
+  <script type="module" src="/lib/third/browser-polyfill.js"></script>
+  <script type="module" src="index.js"></script> 
 </body>
 
 </html>

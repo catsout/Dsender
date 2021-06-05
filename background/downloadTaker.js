@@ -16,10 +16,17 @@ function checkContentTypeInclude(content_type) {
 class DownloaderTaker {
     constructor(createDownloadCallback) {
         this.createDownloadCallback = createDownloadCallback;
+        this.requestHeaders = new Map();
 
+        this.onSendHeaders_bind = this.onSendHeaders.bind(this);
         this.onHeadersReceived_bind = this.onHeadersReceived.bind(this);
         this.onDownloadsCreated_bind = this.onDownloadsCreated.bind(this);
     }
+    onSendHeaders(details) {
+        if(!details.requestHeaders) return;
+        this.requestHeaders.set(details.requestId, details.requestHeaders);
+        setTimeout(this.requestHeaders.delete.bind(this.requestHeaders, details.requestId), 90000);
+    };
     onHeadersReceived({statusCode, method, responseHeaders, requestId, url, type, originUrl, tabId}) {
         if(statusCode != 200 || method.toLowerCase() !== 'get') return {};
         if(!responseHeaders) return {};
@@ -28,6 +35,9 @@ class DownloaderTaker {
         let content_length = null;
         let acceptRanges = false;
         let name = null;
+        let cookie = '';
+        let referer = '';
+        let ua = '';
 
         responseHeaders.forEach((h) => {
             const name = h.name.toLowerCase();
@@ -63,7 +73,25 @@ class DownloaderTaker {
                 name = '';
             }
         }
-        this.createDownloadCallback({url, name, referer: originUrl, size: content_length});
+
+        if(this.requestHeaders.has(requestId)) {
+            const rheader = this.requestHeaders.get(requestId);
+            rheader.forEach((h) => {
+                const name = h.name.toLowerCase();
+                if(name === 'referrer' || name === 'referer') {
+                    referer = h.value;
+                }
+                else if(name === 'cookie') {
+                    cookie = h.value;
+                }
+                else if(name === 'user-agent') {
+                    ua = h.value;
+                }
+            });
+            this.requestHeaders.delete(requestId);
+        }
+
+        this.createDownloadCallback({url, name, referer, cookie, ua, size: content_length});
         // remove blank page
         if(type === 'main_frame' && tabId !== -1) {
             browser.tabs.get(tabId).then(({url}) => {
@@ -90,12 +118,17 @@ class DownloaderTaker {
                 urls: ['http://*/*', 'https://*/*'],
                 types: ['main_frame', 'sub_frame'],
             }, ['blocking', 'responseHeaders'])
+            browser.webRequest.onSendHeaders.addListener(this.onSendHeaders_bind, {
+                urls: ['http://*/*', 'https://*/*'],
+                types: ['main_frame', 'sub_frame'],
+            }, ["requestHeaders"]);
         } else {
             browser.downloads.onCreated.addListener(this.onDownloadsCreated_bind);
         }
     }
     stopMonitor() {
         browser.webRequest.onHeadersReceived.removeListener(this.onHeadersReceived_bind);
+        browser.webRequest.onSendHeaders.removeListener(this.onSendHeaders_bind);
         browser.downloads.onCreated.removeListener(this.onDownloadsCreated_bind);
     }
 }

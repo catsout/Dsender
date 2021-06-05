@@ -5,10 +5,12 @@ import { QBittorrent } from "../lib/downloader-qbittorrent.js";
 class TaskManager {
     constructor() {
         this._timerId = null;
-        this._interval = 1000;
+        this._interval = -1;
 
         this._tasklist = []; // taskitems
         this._downloaderMap = new Map(); // name map
+
+        this.completeNotify = true;
     }
 
 
@@ -98,10 +100,7 @@ class TaskManager {
                 const der = this._downloaderMap.get(k);
                 if(der.status.stats === EDownloaderStats.ok) {
                     // sync
-                    this._downloaderMap.get(k).sync(taskItems).then((result) => {
-                        if(result)
-                            this.saveTasksToConf();  // the task has changed
-                    });
+                    this._downloaderMap.get(k).sync(taskItems, this.saveTasksToConf.bind(this), this.taskStatsChanged.bind(this));
                 }
                 else {
                     // mark offline for downloader not ok
@@ -191,6 +190,19 @@ class TaskManager {
                 });
             }
         });
+    }
+
+    taskStatsChanged(taskItem, oldValue, newValue) {
+        if(this.completeNotify) {
+            if(oldValue === ETaskStats.downloading && (newValue === ETaskStats.complete || newValue === ETaskStats.seeding)) {
+                browser.notifications.create({
+                "type": "basic",
+                "title": 'Complete',
+                "iconUrl": '/assets/icon.svg',
+                "message": `${taskItem.task.name} complete`
+                });
+            }
+        }
     }
 
     get updateInterval() { return this._interval; }
