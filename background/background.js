@@ -80,7 +80,7 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
       browser.windows.create({
         url: '/pages/new-task/index.html?' + params.toString(),
         width: 500,
-        height: 280,
+        height: 330,
         type: 'popup'
       });
     } else {

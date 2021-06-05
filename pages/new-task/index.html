@@ -1,129 +1,144 @@
 <!DOCTYPE html>
 
 <html>
-  <head>
-    <meta charset="utf-8">
-    <style>
-        body {
-          width: 100%;
-          box-sizing: border-box;
-          margin: 0;
-          padding: 5px 10px;
-          font-family: Sans-Serif;
-          --font-s: 13px;
-          font-size: var(--font-s);
-          user-select: none;
-        }
-        textarea {
-          box-sizing: border-box;
-          width: 100%;
-          margin: 5px 0px;
-        }
-        label {
-          display: inline-block;
-          text-align: right;
-          min-width: 80px;
-          padding: 0;
-        }
-        input {
-          display: inline-block;
-          margin: 5px 0px;
-          box-sizing: border-box;
-          font-size: var(--font-s);
-        }
-        label.nopad {
-          min-width: unset;
-        }
-        #footer {
-          margin: 5px 0px;
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: space-around;
-        }
-        #footer widget-button{
-          margin: 0px 10px;
-        }
-        .flex {
-          display: flex;
-          align-items: center;
-          white-space: pre-wrap;
-        }
-        .flex > input {
-          flex: 1;
-          margin-left: 5px;
-        }
-        select {
-          min-width: 60px;
-          margin: 5px 0px;
-          font-size: var(--font-s);
-        }
-        widget-checkbox {
-          margin: 5px 0px;
-          margin-left: 66px;
-        }
-        .hidden {
-          display: none;
-        }
-    </style>
-  </head>
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    html,body {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      margin: 0;
+    }
+    body {
+      width: 100%;
+      height: 100%;
+      padding: 10px 15px;
+      font-family: Sans-Serif;
+      --font-s: 14px;
+      font-size: var(--font-s);
+      display: flex;
+      flex-direction: column;
+    }
+
+    body > div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .part {
+      display: contents;
+    }
+
+    .inputform {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      justify-content: space-around;
+      column-gap: 0.5em;
+      row-gap: 1em;
+    }
+
+    .inputform .label {
+      grid-column: 1;
+      text-align: end;
+    }
+
+    .inputform .full {
+      grid-column: span 3;
+    }
+
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    input,select {
+      width: 100%;
+      font-size: var(--font-s);
+    }
+    
+    input[type="number"] {
+      display: inline-block;
+      width: 5em;
+    }
+
+    select {
+      width: min-content;
+    }
+
+    #footer {
+      margin: 5px 0px;
+      display: flex;
+      /*flex-wrap: wrap;*/
+      align-items: center;
+    }
+
+    #footer widget-button {
+      margin: 0px 10px;
+    }
+
+    .expand {
+      flex: 1;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
 <body>
-    <widget-messagebox></widget-messagebox>
-    <div id="urls" class="part hidden">
-      <textarea id="texturls" cols="40" rows="4" placeholder="One url per line."></textarea>
-    </div>
-    <div id="torrent" class="part hidden flex">
-      <label for="torrentFile">Torrent File:</label>
-      <input style="flex: 1;" type="file" id="torrentFile" name="torrent">
-    </div>
-    <div id="url" class="part hidden">
-      <div class="flex">
-        <label for="texturl">Link:</label>
-        <input type="text" id="texturl">
+  <widget-messagebox></widget-messagebox>
+  <div id="container">
+    <div class="inputform">
+      <div id="urls" class="part hidden">
+        <textarea class="full" id="texturls" cols="40" rows="4" placeholder="One url per line."></textarea>
       </div>
-      <div class="flex">
-        <label for="name">Name:</label>
-        <input type="text" id="name" placeholder="decided by downloader">
+      <div id="torrent" class="part hidden flex">
+        <label for="torrentFile" class="label">Torrent File:</label>
+        <input style="flex: 1;" type="file" id="torrentFile" name="torrent">
       </div>
-    </div>
-
-    <div id="common">
-      <label for="path">Save path:</label>
-      <input id="path" type="text" placeholder="default"><div></div>
-      <label for="selectDown">Send to:</label>
-      <select id="selectDown"></select>
-    </div>
-    <div id="option" class="hidden">
-      <div class="flex">
-        <label for="referer">Referer:</label>
-        <input type="text" id="referer">
+      <div id="url" class="part hidden">
+          <label for="texturl" class="label">Link:</label>
+          <input type="text" id="texturl">
+          <label for="name" class="label">Name:</label>
+          <input type="text" id="name" placeholder="decided by downloader">
       </div>
-      <div class="flex">
-        <label for="useragent">User agent:</label>
-        <input type="text" id="useragent" placeholder="default">
+      <div id="common" class="part">
+        <label for="path" class="label">Save path:</label>
+        <input id="path" type="text" placeholder="default">
+        <label for="selectDown" class="label">Send to:</label>
+        <select id="selectDown"></select>
       </div>
-      <div>
-        <label for="threads">Threads:</label>
-        <input style="width: 60px;" type="number" id="threads" placeholder="--">
+      <div id="option" class="part hidden">
+          <label for="referer" class="label">Referer:</label>
+          <input type="text" id="referer">
+          <label for="useragent" class="label">User agent:</label>
+          <input type="text" id="useragent" placeholder="default">
+          <label for="threads" class="label">Threads:</label>
+          <input type="number" id="threads" placeholder="--">
+          <label for="minsplit" class="label">Min split size:</label>
+          <span><input type="number" id="minsplit" placeholder="--"> M</span>
       </div>
-      <div>
-        <label for="minsplit">Min split size:</label>
-        <input style="width: 60px;" type="number" id="minsplit" placeholder="--"><span> M</span>
+      <div id="btoption" class="part hidden">
+        <widget-checkbox class="full" id="firstLastPiece">Download first and last pieces first</widget-checkbox>
+        <widget-checkbox class="full" id="sequential">Download in sequential order</widget-checkbox>
       </div>
     </div>
-    <div id="btoption" class="hidden">
-      <widget-checkbox id="firstLastPiece">Download first and last pieces first</widget-checkbox>
-      <widget-checkbox id="sequential">Download in sequential order</widget-checkbox>
-    </div>
+    <div class="expand"></div>
     <div id="footer">
-      <div></div>
-      <div></div>
+      <div class="expand"></div>
       <div>
-        <widget-button id="cancel" class="hidden">cancel</widget-button>
-        <widget-button id="submit">add</widget-button>
+        <widget-button id="cancel" class="hidden" size="large">cancel</widget-button>
+        <widget-button id="submit" size="large">add</widget-button>
       </div>
     </div>
-
-    <script type="module" src="/lib/third/browser-polyfill.js"></script>
-    <script type="module" src="index.js"></script> 
+  </div>
+  <script type="module" src="/lib/third/browser-polyfill.js"></script>
+  <script type="module" src="index.js"></script>
 </body>
+
 </html>

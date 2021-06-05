@@ -61,8 +61,8 @@ class Dsender {
         });
         browser.windows.create({
             url: '/pages/new-task/index.html?' + params.toString(),
-            width: 600,
-            height: 370,
+            width: 710,
+            height: 400,
             type: 'popup'
         });
     };

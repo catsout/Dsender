@@ -61,7 +61,7 @@ $('#newBt').addEventListener('click', (e) => {
   browser.windows.create({
     url: '/pages/new-task/index.html?' + params.toString(),
     width: 500,
-    height: 340,
+    height: 370,
     type: 'popup'
   });
 });
