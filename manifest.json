@@ -1,12 +1,14 @@
 {
     "manifest_version": 2,
-    "version": "0.1.4",
+    "version": "0.1.5",
   
     "name": "__MSG_extensionName__",
     "description": "__MSG_extensionDescription__",
   
     "icons": {
-        "48": "assets/icon.svg"
+        "16": "assets/icon16.png",
+        "48": "assets/icon48.png",
+        "128": "assets/icon128.png"
     },
 
     "permissions": [
@@ -17,7 +19,11 @@
     "default_locale": "en",
 
     "browser_action": {
-        "default_icon": "assets/icon.svg",
+        "default_icon": {
+            "16": "assets/icon16.png",
+            "48": "assets/icon48.png",
+            "64": "assets/icon64.png"
+        },
         "default_title": "__MSG_extensionName__",
         "default_popup": "popup/popup.html"
     },   

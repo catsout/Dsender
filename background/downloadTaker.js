@@ -2,7 +2,8 @@ import { basename } from "../common.js";
 import { parseContentDisposition } from '../lib/content-disposition.js';
 
 const exclude_content_type = new Set([
-    'x-xpinstall', 'javascript', 'x-javascript', 'ecmascript', 'x-ecmascript'
+    'x-xpinstall', 'javascript', 'x-javascript', 'ecmascript', 'x-ecmascript',
+    'json', 'xml'
 ]);
 // content_type removed params
 function checkContentTypeInclude(content_type) {
@@ -90,7 +91,6 @@ class DownloaderTaker {
             });
             this.requestHeaders.delete(requestId);
         }
-
         this.createDownloadCallback({url, name, referer, cookie, ua, size: content_length});
         // remove blank page
         if(type === 'main_frame' && tabId !== -1) {
@@ -117,11 +117,15 @@ class DownloaderTaker {
             browser.webRequest.onHeadersReceived.addListener(this.onHeadersReceived_bind, {
                 urls: ['http://*/*', 'https://*/*'],
                 types: ['main_frame', 'sub_frame'],
-            }, ['blocking', 'responseHeaders'])
+            }, ['blocking', 'responseHeaders', 
+                browser.webRequest.OnHeadersReceivedOptions.EXTRA_HEADERS].filter(Boolean)); 
+
             browser.webRequest.onSendHeaders.addListener(this.onSendHeaders_bind, {
                 urls: ['http://*/*', 'https://*/*'],
                 types: ['main_frame', 'sub_frame'],
-            }, ["requestHeaders"]);
+            }, ['requestHeaders', 
+                browser.webRequest.OnSendHeadersOptions.EXTRA_HEADERS].filter(Boolean));
+
         } else {
             browser.downloads.onCreated.addListener(this.onDownloadsCreated_bind);
         }
