@@ -11,6 +11,7 @@ body {
 
 widget-pageroute {
   max-height: 520px;
+  max-width: 460px;
 }
 
 #dstats widget-statsbar {

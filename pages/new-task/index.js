@@ -1,3 +1,8 @@
+import '../../lib/widget-button.js';
+import '../../lib/widget-messagebar.js';
+import '../../lib/widget-checkbox.js';
+import '../../lib/widget-bytelabel.js';
+
 import { TaskParams, TbtParmas, TurlParmas } from '../../common.js';
 import { DownloaderBase } from '../../lib/downloader-base.js';
 import { MessagePort } from '../../lib/message.js';
@@ -6,9 +11,6 @@ import { genTorrentHash } from '../../lib/torrent.js';
 import { bencode } from '../../lib/bencode.js';
 
 
-import '../../lib/widget-button.js';
-import '../../lib/widget-messagebar.js';
-import '../../lib/widget-checkbox.js';
 
 var backport = new MessagePort();
 backport.connect('request');
@@ -27,6 +29,8 @@ const dname = document.querySelector('#name');
 const dreferer = document.querySelector('#referer');
 const dua = document.querySelector('#useragent')
 const pagetype = params.get('type') || 'urls';
+
+const dsize = document.querySelector('#sizelabel');
 
 function showEl(...els) {
   els.forEach((el) => {
@@ -53,6 +57,8 @@ else if(pagetype === 'url') {
   dreferer.value = params.get('referer');
   dua.value = params.get('ua');
   newType = 'url';
+  dsize.value = params.get('size');
+  dsize.classList.remove('hidden');
 } else if(pagetype === 'urls'){
   showEl('#urls.part', '#option');
 }

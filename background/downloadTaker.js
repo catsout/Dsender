@@ -3,14 +3,14 @@ import { parseContentDisposition } from '../lib/content-disposition.js';
 
 const exclude_content_type = new Set([
     'x-xpinstall', 'javascript', 'x-javascript', 'ecmascript', 'x-ecmascript',
-    'json', 'xml'
+    'json', 'xml', 'pdf'
 ]);
 // content_type removed params
 function checkContentTypeInclude(content_type) {
     const [type, subtype_part] = content_type.toLowerCase().split('/');
     if(!subtype_part) return false;
-    const subtype = subtype_part.split('+')[0];
-    if(type !== 'application') return false;
+    const subtype = subtype_part.split(';')[0].split('+')[0];
+    if(type !== 'application' && type !== 'video') return false;
     return !exclude_content_type.has(subtype);
 }
 
@@ -26,9 +26,11 @@ class DownloaderTaker {
     onSendHeaders(details) {
         if(!details.requestHeaders) return;
         this.requestHeaders.set(details.requestId, details.requestHeaders);
-        setTimeout(this.requestHeaders.delete.bind(this.requestHeaders, details.requestId), 90000);
+        setTimeout(this.requestHeaders.delete.bind(this.requestHeaders, details.requestId), 60000);
     };
     onHeadersReceived({statusCode, method, responseHeaders, requestId, url, type, originUrl, tabId}) {
+        const reqh = this.requestHeaders.get(requestId);
+        this.requestHeaders.delete(requestId);
         if(statusCode != 200 || method.toLowerCase() !== 'get') return {};
         if(!responseHeaders) return {};
         let content_disposition = null;
@@ -54,30 +56,22 @@ class DownloaderTaker {
                 acceptRanges = /bytes/i.test(h.value);
             }
         });
+        if(content_type === null) return {};
+        if(type === 'xmlhttprequest' && !content_disposition) return {};
+        if(!checkContentTypeInclude(content_type)) return {};
         if(content_disposition) {
             const {type, filename} = parseContentDisposition(content_disposition);
-            if(type === 'inline') return {};
             if(filename !== null)
                 name = filename;
-        } else {
-            // no attach
-            // returen if inline
-            if(content_disposition !== null) return {};
-            // check content_type
-            if( content_type === null || content_length === null || !acceptRanges) return {};
-            if(!checkContentTypeInclude(content_type)) return {};
         }
         if(name === null) {
             try {
                 name = decodeURIComponent(basename(url).split('?')[0]);
-            }catch{
-                name = '';
-            }
+            } catch { name = ''; }
         }
 
-        if(this.requestHeaders.has(requestId)) {
-            const rheader = this.requestHeaders.get(requestId);
-            rheader.forEach((h) => {
+        if(reqh) {
+            reqh.forEach((h) => {
                 const name = h.name.toLowerCase();
                 if(name === 'referrer' || name === 'referer') {
                     referer = h.value;
@@ -89,10 +83,9 @@ class DownloaderTaker {
                     ua = h.value;
                 }
             });
-            this.requestHeaders.delete(requestId);
         }
         this.createDownloadCallback({url, name, referer, cookie, ua, size: content_length});
-        
+        /* 
         // for chrome
         if(chrome.downloads.onDeterminingFilename) {
             const remove = function(item) {
@@ -104,17 +97,17 @@ class DownloaderTaker {
             chrome.downloads.onDeterminingFilename.addListener(remove);
             setTimeout(() => { chrome.downloads.onDeterminingFilename.removeListener(remove); }, 3000);
             return {};
-        }
+        }*/
 
         // remove blank page
         if(type === 'main_frame' && tabId !== -1) {
             browser.tabs.get(tabId).then((tabInfo) => {
-                if(tabInfo.url === 'about:blank') {
+                if(tabInfo.url === 'about:blank' || !tabInfo.url) {
                     browser.tabs.remove(tabId);
                 }
             });
         }
-        return { cancel: true };
+        return { redirectUrl:"javascript:" };
     };
     onDownloadsCreated({id, filename, fileSize, referer, url}) {
         createDownloadCallback({url, name: basename(filename), referer, size: fileSize});
@@ -131,13 +124,13 @@ class DownloaderTaker {
         if(webrequest) {
             browser.webRequest.onHeadersReceived.addListener(this.onHeadersReceived_bind, {
                 urls: ['http://*/*', 'https://*/*'],
-                types: ['main_frame', 'sub_frame'],
+                types: ['main_frame', 'sub_frame', 'xmlhttprequest'],
             }, ['blocking', 'responseHeaders', 
                 browser.webRequest.OnHeadersReceivedOptions.EXTRA_HEADERS].filter(Boolean)); 
 
             browser.webRequest.onSendHeaders.addListener(this.onSendHeaders_bind, {
                 urls: ['http://*/*', 'https://*/*'],
-                types: ['main_frame', 'sub_frame'],
+                types: ['main_frame', 'sub_frame', 'xmlhttprequest'],
             }, ['requestHeaders', 
                 browser.webRequest.OnSendHeadersOptions.EXTRA_HEADERS].filter(Boolean));
 
