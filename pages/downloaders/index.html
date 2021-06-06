@@ -22,7 +22,7 @@
           justify-content: space-around;
           height: auto;
           box-sizing: border-box;
-          margin: 5px 5px;
+          margin: 5px 0px;
         }
         .item > :not(:first-child) {
           flex: 1;
@@ -93,8 +93,8 @@
           <span class="type"></span>
           <span class="stats"></span>
           <span class="speed">
-            <widget-bytelabel speed class="down"></widget-bytelabel>
-            <widget-bytelabel speed class="up"></widget-bytelabel>
+            <div><widget-bytelabel speed class="down">↓</widget-bytelabel></div>
+            <div><widget-bytelabel speed class="up">↑</widget-bytelabel></div>
           </span>
           <div class="itembut">
             <widget-button theme="icon">
@@ -105,7 +105,7 @@
       </div>
     </template>
     <div id="container"></div>
-    <script type="module" src="/lib/third/browser-polyfill.js"></script>
+    <script type="module" src="/lib/third/browser-polyfill.min.js"></script>
     <script type="module" src="index.js"></script> 
 </body>
 

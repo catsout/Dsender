@@ -84,7 +84,7 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
         type: 'popup'
       });
     } else {
-      createDownCallback({ url: info.linkUrl, name: '', referer: info.pageUrl, size: null});
+      dsender.createDownCallback({ url: info.linkUrl, name: '', referer: info.pageUrl, size: null});
     }
   }
 });
