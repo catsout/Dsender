@@ -38,6 +38,7 @@ class TaskManager {
         return taskPromise.then((task) => {
             this._tasklist.push(new TaskItem(task));
             this.saveTasksToConf();
+            new Promise((r) => { this.updateStatus(); r(); });
             return task;
         });
     }

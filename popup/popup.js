@@ -12,6 +12,7 @@ import {DownloaderStatus, Task, TaskStatus} from '../common.js'
 import { DownloaderBase } from '../lib/downloader-base.js';
 
 import { MessagePort } from '../lib/message.js';
+import { Setting } from '../lib/setting.js';
 
 var backport = new MessagePort();
 backport.connect('request');
@@ -24,6 +25,7 @@ window.dpageroute = $('widget-pageroute');
 var drouteBackBtn = $('[slot="routeHeader"] widget-button');
 var switchEnable = $('#enable');
 var msgbox = $('widget-messagebox');
+var dselectDown = $('#defaultDownloader select');
 
 dsetting.addEventListener('click', (event) => {
   dpageroute.goToggle('/pages/setting/index.html');
@@ -126,28 +128,45 @@ backPort.onMessage.addListener(function(message) {
   }
 });
 
-browser.storage.local.get(['downloaderList', 'defaultDownloader', 'enableCap']).then(item => {
-  if(item.downloaderList) {}
-  if(item.defaultDownloader) {}
-  if(item.enableCap) {
-    switchEnable.checked = item.enableCap;
-  }
+var setting = new Setting();
+setting.addListener('enableCap', (oldv, newv) => { switchEnable.checked = newv; });
+
+dselectDown.addEventListener('change', () => {
+  Setting.setSetting({ defaultDownloader: dselectDown.value });
 });
 
+setting.addListener('defaultDownloader', (oldv, newv) => { 
+  if(dselectDown.value !== newv)
+    dselectDown.value = newv;
+});
 
-function storageChanged(changes, area) {
-  if(changes.popupIgnore) return;
-  if(changes.downloaderList) {}
-  if(changes.defaultDownloader) {}
-}
+setting.addListener('downloaderList', (oldv, newv) => { 
+  dselectDown.innerHTML = '';
+  const downloaderList = newv || [];
+  downloaderList.forEach((el) => {
+    const opt = document.createElement('option');
+    const name = DownloaderBase.idToName(el);
+    opt.value = name;
+    opt.text = name;
+    opt.id = el;
+    dselectDown.add(opt);
+  });
+  Setting.getSetting(['defaultDownloader']).then((item) => {
+    if(item.defaultDownloader)
+      dselectDown.value = item.defaultDownloader;
+    const id = DownloaderBase.nameToId(item.defaultDownloader||'');
+    if(downloaderList.length > 0 && !downloaderList.includes(id))
+      Setting.setSetting({defaultDownloader: DownloaderBase.idToName(downloaderList[0])});
+  });
+});
 
-
-browser.storage.onChanged.addListener(storageChanged);
+setting.addListener('directDownload', (oldv, newv) => { 
+  $('#defaultDownloader').classList.toggle('hidden', !newv);
+});
 
 window.addEventListener("unload", function() {
-  browser.storage.onChanged.removeListener(storageChanged);
+  setting.unload();
 });
-
 
 function update(allsync) {
   backport.send({command: 'sync', data: allsync}).then((result) => {

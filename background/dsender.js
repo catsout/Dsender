@@ -1,3 +1,4 @@
+import { TaskParams, TurlParmas } from "../common.js";
 import { DownloaderBase } from "../lib/downloader-base.js";
 import { Setting } from "../lib/setting.js";
 import { DownloaderTaker } from "./downloadTaker.js";
@@ -8,12 +9,15 @@ class Dsender {
         this.tmgr = new TaskManager();
         this.tmgr.loadFromConf();
         this.setting = new Setting();
-        this.defaultDerName = '';
-        this.dTaker = new DownloaderTaker(this.createDownCallback);
+        this.defaultDownloader = '';
+        this.directDownload = false;
+        this.dTaker = new DownloaderTaker(this.createDownCallback.bind(this));
 
         this.defaultSetting = {
             enableCap: false,
-            completeNotify: true
+            completeNotify: true,
+            defaultDownloader: '',
+            directDownload: false
         }
         this.settingInit();
     }
@@ -35,12 +39,9 @@ class Dsender {
                 else 
                     this.dTaker.stopMonitor();
             });
-            this.setting.addListener('defaultDownloader', (oldv, newv) => {
-                this.defaultDerName = newv;
-            });
-            this.setting.addListener('completeNotify', (oldv, newv) => {
-                this.tmgr.completeNotify = newv;
-            });
+            this.setting.addListener('defaultDownloader', (oldv, newv) => { this.defaultDownloader = newv; });
+            this.setting.addListener('directDownload', (oldv, newv) => { this.directDownload = newv; });
+            this.setting.addListener('completeNotify', (oldv, newv) => { this.tmgr.completeNotify = newv; });
             this.setting.addRegexpListener(/downloader_/, (key, oldv, newv) => {
                 if(!newv) {
                     const name = DownloaderBase.idToName(key);
@@ -53,18 +54,48 @@ class Dsender {
     }
 
     createDownCallback({url, name, cookie, referer, size, ua}) {
-        const params = new URLSearchParams({
-            url, referer, cookie, 
-            ua: ua? ua : window.navigator.userAgent, 
-            name,size, type: 'url',
-            popup: 'true'
-        });
-        browser.windows.create({
-            url: '/pages/new-task/index.html?' + params.toString(),
-            width: 710,
-            height: 400,
-            type: 'popup'
-        });
+        if(!this.directDownload) {
+            const params = new URLSearchParams({
+                url, referer, cookie, 
+                ua: ua? ua : window.navigator.userAgent, 
+                name,size, type: 'url',
+                popup: 'true'
+            });
+            browser.windows.create({
+                url: '/pages/new-task/index.html?' + params.toString(),
+                width: 710,
+                height: 400,
+                type: 'popup'
+            });
+        } else {
+            this.tmgr.addTask(
+                new TaskParams(
+                    name, null,
+                    new TurlParmas(
+                        url, {
+                            'Referer': referer,
+                            'User-Agent': ua,
+                            'Cookie': cookie
+                        },
+                    )
+                ),
+                this.defaultDownloader
+            ).then((result) => {
+                browser.notifications.create({
+                    "type": "basic",
+                    "title": 'Send',
+                    "iconUrl": '/assets/icon.svg',
+                    "message": `send download ${result.name} to ${result.downloader}`
+                });
+            }, (reason) => {
+                browser.notifications.create({
+                    "type": "basic",
+                    "title": 'Error',
+                    "iconUrl": '/assets/icon.svg',
+                    "message": reason.toString()
+                });
+            });
+        }
     };
 }
 

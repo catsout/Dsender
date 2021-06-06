@@ -10,8 +10,6 @@ import { MessagePort } from '../../lib/message.js';
 import { genTorrentHash } from '../../lib/torrent.js';
 import { bencode } from '../../lib/bencode.js';
 
-
-
 var backport = new MessagePort();
 backport.connect('request');
 
@@ -77,11 +75,11 @@ var msgbox = document.querySelector('widget-messagebox');
 function updateSelectDown(downloaderList) {
   selectDown.innerHTML = '';
   downloaderList.forEach((el) => {
-    let opt = document.createElement('option');
-    let name = DownloaderBase.idToName(el);
+    const opt = document.createElement('option');
+    const name = DownloaderBase.idToName(el);
     opt.value = name;
     opt.text = name;
-    opt.id = name;
+    opt.id = el;
     selectDown.add(opt);
   });
 }
@@ -118,7 +116,10 @@ function addTask(params) {
       "iconUrl": '../../assets/icon.svg',
       "message": `send download ${result.name} to ${result.downloader}`
     });
-    backport.send({command: 'refresh'});
+    browser.storage.local.get(['directDownload']).then(item => {
+      if(item.directDownload)
+        browser.storage.local.set({ defaultDownloader: selectDown.value });
+    });
   });
 }
 
@@ -199,8 +200,9 @@ document.querySelector('#submit').addEventListener('click', function(event) {
   }
 });
 
-browser.storage.local.get(['downloaderList']).then(item => {
+browser.storage.local.get(['downloaderList', 'defaultDownloader']).then(item => {
   if(item.downloaderList) {
     updateSelectDown(item.downloaderList);
+    selectDown.value = item.defaultDownloader;
   }
 });

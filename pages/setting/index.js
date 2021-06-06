@@ -3,7 +3,7 @@ import '../../lib/widget-switch.js';
 var dpageroute = parent.dpageroute;
 
 const configs = [
-    'completeNotify',
+    'completeNotify', 'directDownload'
 ];
 const changedConfigs = {};
 

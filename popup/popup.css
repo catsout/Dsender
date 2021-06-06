@@ -18,6 +18,10 @@ widget-pageroute {
   margin: 5px;
 }
 
+select {
+  font-size: 14px;
+}
+
 #footer,#header,#routeHeader {
   display: flex;
   flex-direction: row;
@@ -72,10 +76,6 @@ widget-taskitem {
   flex: 1;
 }
 
-.hidden {
-  display: none;
-}
-
 #header > span {
   opacity: 0;
   visibility: hidden;
@@ -85,4 +85,8 @@ widget-taskitem {
 #header > widget-switch[checked] + span {
   opacity: 1;
   visibility: unset;
+}
+
+.hidden {
+  display: none;
 }
