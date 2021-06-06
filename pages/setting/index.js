@@ -31,4 +31,3 @@ browser.storage.local.get(configs).then(item => {
         }
     });
 });
-

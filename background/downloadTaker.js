@@ -92,11 +92,26 @@ class DownloaderTaker {
             this.requestHeaders.delete(requestId);
         }
         this.createDownloadCallback({url, name, referer, cookie, ua, size: content_length});
+        
+        // for chrome
+        if(chrome.downloads.onDeterminingFilename) {
+            const remove = function(item) {
+                chrome.downloads.onDeterminingFilename.removeListener(remove);
+                chrome.downloads.cancel(item.id, () => {
+                    chrome.downloads.erase({id: item.id});
+                });
+            }
+            chrome.downloads.onDeterminingFilename.addListener(remove);
+            setTimeout(() => { chrome.downloads.onDeterminingFilename.removeListener(remove); }, 3000);
+            return {};
+        }
+
         // remove blank page
         if(type === 'main_frame' && tabId !== -1) {
-            browser.tabs.get(tabId).then(({url}) => {
-                if(url === 'about:blank')
+            browser.tabs.get(tabId).then((tabInfo) => {
+                if(tabInfo.url === 'about:blank') {
                     browser.tabs.remove(tabId);
+                }
             });
         }
         return { cancel: true };

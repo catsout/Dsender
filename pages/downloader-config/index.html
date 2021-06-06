@@ -8,7 +8,7 @@
           width: 100%;
           box-sizing: border-box;
           margin: 0;
-          padding: 5px 10px;
+          padding: 5px 15px;
           font-family: Sans-Serif;
           font-size: 14px;
         }
@@ -25,15 +25,21 @@
           display: inline-block;
         }
         #port {
-          width: 60px;
+          width: 5em;
         }
         #footer {
           display: flex;
           margin: 5px 0;
-          justify-content: space-around;
+        }
+        #footer > * {
+          margin-right: 10px;
+        }
+        .expand {
+          flex: 1;
         }
         input,select {
-          font-size: 13px;
+          font-size: 14px;
+          width: min-content;
         }
         widget-checkbox {
           margin: 10px 0px;
@@ -64,8 +70,8 @@
       <div id="extra">
       </div>
       <div id="footer">
-        <div></div>
-        <widget-button disabled id="submit">save</widget-button>
+        <div class="expand"></div>
+        <widget-button disabled size="large" id="submit">save</widget-button>
       </div>
     </div>
 

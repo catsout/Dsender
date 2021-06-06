@@ -112,6 +112,7 @@ function addTask(params) {
       "iconUrl": '../../assets/icon.svg',
       "message": `send download ${result.name} to ${result.downloader}`
     });
+    backport.send({command: 'refresh'});
   });
 }
 

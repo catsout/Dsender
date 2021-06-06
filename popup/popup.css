@@ -1,9 +1,12 @@
 body {
-  width: 460px;
   margin: 0;
   font-family: Sans-Serif;
   font-size: 16px;
   box-sizing: border-box;
+}
+
+#popup-width {
+  width: 460px;
 }
 
 widget-pageroute {
@@ -11,7 +14,6 @@ widget-pageroute {
 }
 
 #dstats widget-statsbar {
-  max-width: 80px;
   margin: 5px;
 }
 

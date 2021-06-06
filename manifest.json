@@ -13,7 +13,7 @@
 
     "permissions": [
         "<all_urls>",
-        "downloads", "storage", "tabs", "notifications", "webRequest" ,"webRequestBlocking", "cookies", "contextMenus"
+        "downloads", "storage", "tabs", "notifications", "webRequest" ,"webRequestBlocking", "contextMenus"
     ],
   
     "default_locale": "en",
@@ -32,14 +32,10 @@
         "page": "background/background.html"
     },
 
-    "content_scripts": [
-    ],
+    "options_ui": {
+        "page": "pages/setting/index.html"
+    },
 
-    "protocol_handlers": [
-        {
-          "protocol": "magnet",
-          "name": "Dsender",
-          "uriTemplate": "/pages/protocol/magnet.html?url=%s"
-        }
+    "content_scripts": [
     ]
 }
