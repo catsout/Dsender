@@ -159,7 +159,7 @@ setting.addListener('downloaderList', (oldv, newv) => {
     const id = DownloaderBase.nameToId(item.defaultDownloader||'');
     if(downloaderList.length > 0 && !downloaderList.includes(id))
       Setting.setSetting({ defaultDownloader: DownloaderBase.idToName(downloaderList[0]) });
-    else 
+    if(downloaderList.length === 0)
       Setting.setSetting({ defaultDownloader: '' });
   });
 });
