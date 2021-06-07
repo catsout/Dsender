@@ -6,7 +6,6 @@ import { DownloaderBase } from '../lib/downloader-base.js';
 
 var dsender = new Dsender();
 
-
 browser.runtime.onConnect.addListener(function(port) {
     if(port.name === 'popup') {
       dsender.tmgr.updateInterval = 1000;
@@ -63,30 +62,6 @@ browser.runtime.onConnect.addListener(function(port) {
       });
       port.onDisconnect.addListener(function(p) { p.disconnected = true; })
     }
-});
-
-
-browser.contextMenus.create({
-  id: "send",
-  title: "Send with Dsender",
-  contexts: ['link'],
-  documentUrlPatterns: ['*://*/*']
-});
-
-browser.contextMenus.onClicked.addListener(function(info, tab) {
-  if (info.menuItemId == "send") {
-    if(DownloaderBase.isMagnet(info.linkUrl)) {
-      const params = new URLSearchParams({popup: true, type: 'btMagnet', magnet: info.linkUrl});
-      browser.windows.create({
-        url: '/pages/new-task/index.html?' + params.toString(),
-        width: 500,
-        height: 330,
-        type: 'popup'
-      });
-    } else {
-      dsender.createDownCallback({ url: info.linkUrl, name: '', referer: info.pageUrl, size: null});
-    }
-  }
 });
 
 dsender.tmgr.updateInterval = 3000;

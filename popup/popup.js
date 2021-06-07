@@ -158,7 +158,9 @@ setting.addListener('downloaderList', (oldv, newv) => {
       dselectDown.value = item.defaultDownloader;
     const id = DownloaderBase.nameToId(item.defaultDownloader||'');
     if(downloaderList.length > 0 && !downloaderList.includes(id))
-      Setting.setSetting({defaultDownloader: DownloaderBase.idToName(downloaderList[0])});
+      Setting.setSetting({ defaultDownloader: DownloaderBase.idToName(downloaderList[0]) });
+    else 
+      Setting.setSetting({ defaultDownloader: '' });
   });
 });
 

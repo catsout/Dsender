@@ -9,6 +9,7 @@ import { MessagePort } from '../../lib/message.js';
 
 import { genTorrentHash } from '../../lib/torrent.js';
 import { bencode } from '../../lib/bencode.js';
+import { Notify } from '../../lib/notify.js';
 
 var backport = new MessagePort();
 backport.connect('request');
@@ -110,14 +111,9 @@ function addTask(params) {
       params: params
     }
   }).then((result) => {
-    browser.notifications.create({
-      "type": "basic",
-      "title": 'send',
-      "iconUrl": '../../assets/icon.svg',
-      "message": `send download ${result.name} to ${result.downloader}`
-    });
+    Notify.sendTask(Promise.resolve(result));
     browser.storage.local.get(['directDownload']).then(item => {
-      if(item.directDownload)
+      if(!item.directDownload)
         browser.storage.local.set({ defaultDownloader: selectDown.value });
     });
   });
@@ -188,12 +184,10 @@ document.querySelector('#submit').addEventListener('click', function(event) {
         }));
       }
     } else {
-      tparams.btParams = new TbtParmas(durl.value, dname.value, sequential, firstLastPiece);
-      const m = DownloaderBase.getMagnetInfo(durl.value);
-      tparams.btParams.hash = m.hash;
+      tparams.btParams = new TbtParmas(durl.value, null, sequential, firstLastPiece);
+      tparams.btParams.hash = params.get('hash');
       promises.push(addTask(tparams));
     }
-    
   }
   if(promises.length > 0) {
     msgbox.sendWait(Promise.all(promises), 'adding task').then(addCallback);

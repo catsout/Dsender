@@ -32,5 +32,4 @@ jobs:
       - name: "Upload Artifact"
         uses: actions/upload-artifact@master
         with:
-          name: target.zip
           path: ${{ steps.web-ext-build.outputs.target }}

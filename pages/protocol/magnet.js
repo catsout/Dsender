@@ -12,8 +12,8 @@ function closeTab() {
     });
 }
 
-const name = DownloaderBase.getMagnetInfo(url).name;
-const nparams = new URLSearchParams({popup: true, type: 'btMagnet', magnet: url, name});
+const mData = DownloaderBase.getMagnetInfo(url);
+const nparams = new URLSearchParams({popup: true, type: 'btMagnet', magnet: url, name: mData.name, hash: mData.hash});
 browser.windows.create({
     url: '/pages/new-task/index.html?' + nparams.toString(),
     width: 500,

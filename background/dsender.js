@@ -1,5 +1,6 @@
-import { TaskParams, TurlParmas } from "../common.js";
+import { TaskParams, TbtParmas, TurlParmas } from "../common.js";
 import { DownloaderBase } from "../lib/downloader-base.js";
+import { Notify } from "../lib/notify.js";
 import { Setting } from "../lib/setting.js";
 import { DownloaderTaker } from "./downloadTaker.js";
 import { TaskManager } from "./taskManager.js";
@@ -20,6 +21,7 @@ class Dsender {
             directDownload: false
         }
         this.settingInit();
+        this.contextMenuInit();
     }
 
     settingInit() {
@@ -52,13 +54,32 @@ class Dsender {
             });
         });
     }
+    contextMenuInit() {
+        browser.contextMenus.create({
+            id: "send",
+            title: "Send with Dsender",
+            contexts: ['link'],
+            documentUrlPatterns: ['*://*/*']
+        });
+
+        browser.contextMenus.onClicked.addListener((info, tab) => {
+            if (info.menuItemId == "send") {
+                if(DownloaderBase.isMagnet(info.linkUrl)) {
+                    this.createMagnetTask({ url: info.linkUrl });
+                } else {
+                    this.createDownCallback({ url: info.linkUrl, name: '', referer: info.pageUrl, size: null});
+                }
+            }
+        });
+    }
 
     createDownCallback({url, name, cookie, referer, size, ua}) {
         if(!this.directDownload) {
             const params = new URLSearchParams({
                 url, referer, cookie, 
                 ua: ua? ua : window.navigator.userAgent, 
-                name,size, type: 'url',
+                name, size, 
+                type: 'url',
                 popup: 'true'
             });
             browser.windows.create({
@@ -68,7 +89,7 @@ class Dsender {
                 type: 'popup'
             });
         } else {
-            this.tmgr.addTask(
+            const p = this.tmgr.addTask(
                 new TaskParams(
                     name, null,
                     new TurlParmas(
@@ -80,23 +101,35 @@ class Dsender {
                     )
                 ),
                 this.defaultDownloader
-            ).then((result) => {
-                browser.notifications.create({
-                    "type": "basic",
-                    "title": 'Send',
-                    "iconUrl": '/assets/icon.svg',
-                    "message": `send download ${result.name} to ${result.downloader}`
-                });
-            }, (reason) => {
-                browser.notifications.create({
-                    "type": "basic",
-                    "title": 'Error',
-                    "iconUrl": '/assets/icon.svg',
-                    "message": reason.toString()
-                });
-            });
+            );
+            Notify.sendTask(p, true);
         }
     };
+
+    createMagnetTask({url}) {
+        const mData = DownloaderBase.getMagnetInfo(url);
+        if(!this.directDownload) {
+            const params = new URLSearchParams({popup: true, type: 'btMagnet', magnet: url, name: mData.name, hash: mData.hash});
+            browser.windows.create({
+                url: '/pages/new-task/index.html?' + params.toString(),
+                width: 500,
+                height: 330,
+                type: 'popup'
+            });
+        } else {
+            const p = this.tmgr.addTask(
+                new TaskParams(
+                    mData.name, null, null,
+                    new TbtParmas(
+                        url, null, null, null,
+                        mData.hash
+                    )
+                ),
+                this.defaultDownloader
+            )
+            Notify.sendTask(p, true);
+        }
+    }
 }
 
 export {Dsender};
