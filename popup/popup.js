@@ -8,7 +8,7 @@ import '../lib/widget-switch.js';
 import '../lib/widget-messagebar.js';
 import '../lib/widget-waiticon.js';
 
-import {DownloaderStatus, Task, TaskStatus} from '../common.js'
+import {DownloaderStatus, ETaskStats, Task, TaskStatus} from '../common.js'
 import { DownloaderBase } from '../lib/downloader-base.js';
 
 import { MessagePort } from '../lib/message.js';
@@ -37,7 +37,9 @@ drouteBackBtn.addEventListener('click', (e) => {
 
 $('#cleanlist').addEventListener('click', (e) => {
   tasklist.querySelectorAll('widget-taskitem').forEach((el) => {
-    el.removeTask();
+    const stats = el.status.stats;
+    if(stats === ETaskStats.complete || stats === ETaskStats.removed)
+      el.removeTask();
   });
 });
 

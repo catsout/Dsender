@@ -53,6 +53,8 @@
     textarea {
       box-sizing: border-box;
       width: 100%;
+      white-space: pre;
+      overflow: auto;
     }
 
     input,select {
@@ -95,7 +97,7 @@
   <div id="container">
     <div class="inputform">
       <div id="urls" class="part hidden">
-        <textarea class="full" id="texturls" cols="40" rows="4" placeholder="One url per line."></textarea>
+        <textarea class="full" id="texturls" rows="5" wrap="soft" placeholder="One url per line."></textarea>
       </div>
       <div id="torrent" class="part hidden flex">
         <label for="torrentFile" class="label">Torrent File:</label>
