@@ -12,23 +12,49 @@
       }
       .table {
         display: grid;
-        grid-template-columns: 5fr 1fr;
-        row-gap: 20px;
+        grid-template-columns: auto auto;
+        gap: 20px;
         align-items: center;
+        justify-content: center; 
         grid-auto-rows: min-content;
-        grid-template-areas: "info action";
 
         box-sizing: border-box;
-        padding: 30px;
+        padding: 30px 10px;
+      }
+
+      .info {
+        grid-column: 1;
+      }
+      .action {
+        grid-column: 2;
+      }
+      .fill {
+        grid-column: span 2;
+      }
+
+      .fill input {
+        display: inline-block;
+        width: 70%;
+      }
+
+      input[type="number"] {
+        max-width: 4em;
       }
     </style>
   </head>
 <body>
+    <widget-messagebox></widget-messagebox>
     <div class="table">
-      <span class="info">Show a notification when download complete</span>
-      <widget-switch class="action" id="completeNotify"></widget-switch>
       <span class="info">Send directly</span>
       <widget-switch class="action" id="directDownload"></widget-switch>
+      <label class="info" for="filterSize">Capture file size filter</label>
+      <span class="action"><input id="filterSize" type="number" min="0"> M</span>
+      <div class="fill">
+        <label>Exclude filename extension filter:</label>
+        <div><input id="filterExExtension" type="text" placeholder="pdf,exe,zip,..."></input></div>
+      </div>
+      <span class="info">Show a notification when download complete</span>
+      <widget-switch class="action" id="completeNotify"></widget-switch>
     </div>
   <script type="module" src="/lib/third/browser-polyfill.min.js"></script>
   <script type="module" src="index.js"></script> 

@@ -20,6 +20,9 @@ class DownloaderTaker {
         this.createDownloadCallback = createDownloadCallback;
         this.requestHeaders = new Map();
 
+        this.filterSize = 1;
+        this.filterExExtension = [];
+
         this.onSendHeaders_bind = this.onSendHeaders.bind(this);
         this.onHeadersReceived_bind = this.onHeadersReceived.bind(this);
         this.onDownloadsCreated_bind = this.onDownloadsCreated.bind(this);
@@ -62,6 +65,9 @@ class DownloaderTaker {
             });
             if(content_type === null) break;
             if(isXmlreq && !content_disposition) break;
+            if(Number.isSafeInteger(content_length)) {
+                if(this.filterSize > content_length/(1024*1024)) break;
+            }
             if(!checkContentTypeInclude(content_type)) break;
             if(content_disposition) {
                 const {type, filename} = parseContentDisposition(content_disposition);
@@ -71,6 +77,8 @@ class DownloaderTaker {
             if(name === null) {
                 name = DownloaderBase.getUrlFilename(url) || '';
             }
+            const filenameEx = name.split('.').slice(-1)[0] || '';
+            if(this.filterExExtension.includes(filenameEx)) break;
 
             if(this.requestHeaders.has(requestId)) {
                 const reqh = this.requestHeaders.get(requestId);

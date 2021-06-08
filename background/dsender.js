@@ -19,7 +19,8 @@ class Dsender {
             enableCap: false,
             completeNotify: true,
             defaultDownloader: '',
-            directDownload: false
+            directDownload: false,
+            filterSize: 0
         }
         this.settingInit();
         this.contextMenuInit();
@@ -45,6 +46,10 @@ class Dsender {
             this.setting.addListener('defaultDownloader', (oldv, newv) => { this.defaultDownloader = newv; });
             this.setting.addListener('directDownload', (oldv, newv) => { this.directDownload = newv; });
             this.setting.addListener('completeNotify', (oldv, newv) => { this.tmgr.completeNotify = newv; });
+            this.setting.addListener('filterSize', (oldv, newv) => { this.dTaker.filterSize = newv; });
+            this.setting.addListener('filterExExtension', (oldv, newv) => { 
+                this.dTaker.filterExExtension = newv.split(',');
+            });
             this.setting.addRegexpListener(/downloader_/, (key, oldv, newv) => {
                 if(!newv) {
                     const name = DownloaderBase.idToName(key);
