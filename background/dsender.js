@@ -2,6 +2,7 @@ import { TaskParams, TbtParmas, TurlParmas } from "../common.js";
 import { DownloaderBase } from "../lib/downloader-base.js";
 import { Notify } from "../lib/notify.js";
 import { Setting } from "../lib/setting.js";
+import { openPopupWindow } from "./window-open.js";
 import { DownloaderTaker } from "./downloadTaker.js";
 import { TaskManager } from "./taskManager.js";
 
@@ -67,7 +68,12 @@ class Dsender {
                 if(DownloaderBase.isMagnet(info.linkUrl)) {
                     this.createMagnetTask({ url: info.linkUrl });
                 } else {
-                    this.createDownCallback({ url: info.linkUrl, name: '', referer: info.pageUrl, size: null});
+                    this.createDownCallback({ 
+                        url: info.linkUrl, 
+                        name: DownloaderBase.getUrlFilename(info.linkUrl) || '', 
+                        referer: info.pageUrl, 
+                        size: null
+                    });
                 }
             }
         });
@@ -82,12 +88,7 @@ class Dsender {
                 type: 'url',
                 popup: 'true'
             });
-            browser.windows.create({
-                url: '/pages/new-task/index.html?' + params.toString(),
-                width: 710,
-                height: 400,
-                type: 'popup'
-            });
+            openPopupWindow('newTaskUrl', params.toString());
         } else {
             const p = this.tmgr.addTask(
                 new TaskParams(
@@ -109,17 +110,12 @@ class Dsender {
     createMagnetTask({url}) {
         const mData = DownloaderBase.getMagnetInfo(url);
         if(!this.directDownload) {
-            const params = new URLSearchParams({popup: true, type: 'btMagnet', magnet: url, name: mData.name, hash: mData.hash});
-            browser.windows.create({
-                url: '/pages/new-task/index.html?' + params.toString(),
-                width: 500,
-                height: 330,
-                type: 'popup'
-            });
+            const params = new URLSearchParams({popup: true, type: 'btMagnet', magnet: url, name: mData.name || mData.hash, hash: mData.hash});
+            openPopupWindow('newBtTaskUrl', params.toString());
         } else {
             const p = this.tmgr.addTask(
                 new TaskParams(
-                    mData.name, null, null,
+                    mData.name||mData.hash, null, null,
                     new TbtParmas(
                         url, null, null, null,
                         mData.hash

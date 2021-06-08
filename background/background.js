@@ -1,8 +1,8 @@
 'use strict';
 
+import { openPopupWindow } from './window-open.js';
 import { Dsender } from './dsender.js';
 
-import { DownloaderBase } from '../lib/downloader-base.js';
 
 var dsender = new Dsender();
 
@@ -58,6 +58,9 @@ browser.runtime.onConnect.addListener(function(port) {
           } else  {
             dsender.tmgr.addTask(data.params, data.downloader).then(sendOk, sendError);
           }
+        } else if(cmd === 'openWindow') {
+          openPopupWindow(data.id, data.params);
+          sendOk();
         }
       });
       port.onDisconnect.addListener(function(p) { p.disconnected = true; })

@@ -3,6 +3,8 @@ import '../../lib/widget-messagebar.js';
 import '../../lib/widget-checkbox.js';
 import '../../lib/widget-bytelabel.js';
 
+import '../../lib/window-save.js';
+
 import { TaskParams, TbtParmas, TurlParmas } from '../../common.js';
 import { DownloaderBase } from '../../lib/downloader-base.js';
 import { MessagePort } from '../../lib/message.js';

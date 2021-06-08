@@ -13,6 +13,7 @@ import { DownloaderBase } from '../lib/downloader-base.js';
 
 import { MessagePort } from '../lib/message.js';
 import { Setting } from '../lib/setting.js';
+import { openPopupWindow } from '../background/window-open.js';
 
 var backport = new MessagePort();
 backport.connect('request');
@@ -62,12 +63,7 @@ $('#enable').addEventListener('change', (e) => {
 
 $('#newBt').addEventListener('click', (e) => {
   const params = new URLSearchParams({popup: true, type: 'bt'})
-  browser.windows.create({
-    url: '/pages/new-task/index.html?' + params.toString(),
-    width: 500,
-    height: 370,
-    type: 'popup'
-  });
+  backport.send({command: 'openWindow', data: {id: 'newBtTask', params: params.toString()}});
 });
 
 

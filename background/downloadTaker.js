@@ -1,9 +1,10 @@
 import { basename } from "../common.js";
 import { parseContentDisposition } from '../lib/content-disposition.js';
+import { DownloaderBase } from "../lib/downloader-base.js";
 
 const exclude_content_type = new Set([
     'x-xpinstall', 'javascript', 'x-javascript', 'ecmascript', 'x-ecmascript',
-    'json', 'xml', 'pdf'
+    'json', 'xml', 'pdf', 'xhtml'
 ]);
 // content_type removed params
 function checkContentTypeInclude(content_type) {
@@ -24,90 +25,96 @@ class DownloaderTaker {
         this.onDownloadsCreated_bind = this.onDownloadsCreated.bind(this);
     }
     onSendHeaders(details) {
-        if(!details.requestHeaders) return;
+        if(!details.requestHeaders || details.method.toLowerCase() !== 'get') return;
         this.requestHeaders.set(details.requestId, details.requestHeaders);
         setTimeout(this.requestHeaders.delete.bind(this.requestHeaders, details.requestId), 60000);
     };
-    onHeadersReceived({statusCode, method, responseHeaders, requestId, url, type, originUrl, tabId}) {
-        const reqh = this.requestHeaders.get(requestId);
-        this.requestHeaders.delete(requestId);
-        if(statusCode != 200 || method.toLowerCase() !== 'get') return {};
-        if(!responseHeaders) return {};
-        let content_disposition = null;
-        let content_type = null;
-        let content_length = null;
-        let acceptRanges = false;
-        let name = null;
-        let cookie = '';
-        let referer = '';
-        let ua = '';
+    onHeadersReceived({statusCode, method, responseHeaders, requestId, url, type, originUrl, tabId, fromCache}) {
+        do {
+            if(statusCode != 200 || method.toLowerCase() !== 'get' || fromCache) break;
+            if(!responseHeaders) break;
 
-        responseHeaders.forEach((h) => {
-            const name = h.name.toLowerCase();
-            if(name === 'content-disposition') {
-                content_disposition = h.value;
-            } else if(name === 'content-type') {
-                content_type = h.value.split(';')[0].trim();
-            } else if(name === 'content-length') {
-                const length = parseInt(h.value, 10);
-                if(Number.isSafeInteger(length))
-                    content_length = length;
-            } else if(name === 'accept-ranges') {
-                acceptRanges = /bytes/i.test(h.value);
-            }
-        });
-        if(content_type === null) return {};
-        if(type === 'xmlhttprequest' && !content_disposition) return {};
-        if(!checkContentTypeInclude(content_type)) return {};
-        if(content_disposition) {
-            const {type, filename} = parseContentDisposition(content_disposition);
-            if(filename !== null)
-                name = filename;
-        }
-        if(name === null) {
-            try {
-                name = decodeURIComponent(basename(url).split('?')[0]);
-            } catch { name = ''; }
-        }
+            const isXmlreq = (type === 'xmlhttprequest');
+            if(!isXmlreq && tabId < 0) break;
 
-        if(reqh) {
-            reqh.forEach((h) => {
+            let content_disposition = null;
+            let content_type = null;
+            let content_length = null;
+            let acceptRanges = false;
+            let name = null;
+            let cookie = '';
+            let referer = '';
+            let ua = '';
+
+            responseHeaders.forEach((h) => {
                 const name = h.name.toLowerCase();
-                if(name === 'referrer' || name === 'referer') {
-                    referer = h.value;
-                }
-                else if(name === 'cookie') {
-                    cookie = h.value;
-                }
-                else if(name === 'user-agent') {
-                    ua = h.value;
+                if(name === 'content-disposition') {
+                    content_disposition = h.value;
+                } else if(name === 'content-type') {
+                    content_type = h.value.split(';')[0].trim();
+                } else if(name === 'content-length') {
+                    const length = parseInt(h.value, 10);
+                    if(Number.isSafeInteger(length))
+                        content_length = length;
+                } else if(name === 'accept-ranges') {
+                    acceptRanges = /bytes/i.test(h.value);
                 }
             });
-        }
-        this.createDownloadCallback({url, name, referer, cookie, ua, size: content_length});
-        /* 
-        // for chrome
-        if(chrome.downloads.onDeterminingFilename) {
-            const remove = function(item) {
-                chrome.downloads.onDeterminingFilename.removeListener(remove);
-                chrome.downloads.cancel(item.id, () => {
-                    chrome.downloads.erase({id: item.id});
+            if(content_type === null) break;
+            if(isXmlreq && !content_disposition) break;
+            if(!checkContentTypeInclude(content_type)) break;
+            if(content_disposition) {
+                const {type, filename} = parseContentDisposition(content_disposition);
+                if(filename !== null)
+                    name = filename;
+            }
+            if(name === null) {
+                name = DownloaderBase.getUrlFilename(url) || '';
+            }
+
+            if(this.requestHeaders.has(requestId)) {
+                const reqh = this.requestHeaders.get(requestId);
+                reqh.forEach((h) => {
+                    const name = h.name.toLowerCase();
+                    if(name === 'referrer' || name === 'referer') {
+                        referer = h.value;
+                    }
+                    else if(name === 'cookie') {
+                        cookie = h.value;
+                    }
+                    else if(name === 'user-agent') {
+                        ua = h.value;
+                    }
+                });
+                this.requestHeaders.delete(requestId);
+            }
+            this.createDownloadCallback({url, name, referer, cookie, ua, size: content_length});
+            /* 
+            // for chrome
+            if(chrome.downloads.onDeterminingFilename) {
+                const remove = function(item) {
+                    chrome.downloads.onDeterminingFilename.removeListener(remove);
+                    chrome.downloads.cancel(item.id, () => {
+                        chrome.downloads.erase({id: item.id});
+                    });
+                }
+                chrome.downloads.onDeterminingFilename.addListener(remove);
+                setTimeout(() => { chrome.downloads.onDeterminingFilename.removeListener(remove); }, 3000);
+                return {};
+            }*/
+
+            // remove blank page
+            if(type === 'main_frame' && tabId !== -1) {
+                browser.tabs.get(tabId).then((tabInfo) => {
+                    if(tabInfo.url === 'about:blank' || !tabInfo.url) {
+                        browser.tabs.remove(tabId);
+                    }
                 });
             }
-            chrome.downloads.onDeterminingFilename.addListener(remove);
-            setTimeout(() => { chrome.downloads.onDeterminingFilename.removeListener(remove); }, 3000);
-            return {};
-        }*/
-
-        // remove blank page
-        if(type === 'main_frame' && tabId !== -1) {
-            browser.tabs.get(tabId).then((tabInfo) => {
-                if(tabInfo.url === 'about:blank' || !tabInfo.url) {
-                    browser.tabs.remove(tabId);
-                }
-            });
-        }
-        return { redirectUrl:"javascript:" };
+            return { redirectUrl:"javascript:" };
+        } while(false);
+        this.requestHeaders.delete(requestId);
+        return {};
     };
     onDownloadsCreated({id, filename, fileSize, referer, url}) {
         createDownloadCallback({url, name: basename(filename), referer, size: fileSize});
