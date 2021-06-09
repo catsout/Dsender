@@ -1,7 +1,7 @@
 const ETaskStats = {
     downloading: 'downloading',
     waiting: 'waiting',
-    complete: 'complete',
+    completed: 'completed',
     paused: 'paused',
     error: 'error',
     unknown: 'unknown',

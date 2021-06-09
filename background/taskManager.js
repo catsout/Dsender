@@ -94,7 +94,7 @@ class TaskManager {
             // filter taskitems if not fullsync
             const taskItems = refresh? v : v.filter(function(el) {
                 const stats = el.status.stats;
-                return !(stats === ETaskStats.error || stats === ETaskStats.complete || stats === ETaskStats.removed);
+                return !(stats === ETaskStats.error || stats === ETaskStats.completed || stats === ETaskStats.removed);
             });
 
             if(this._downloaderMap.has(k)) {
@@ -195,12 +195,12 @@ class TaskManager {
 
     taskStatsChanged(taskItem, oldValue, newValue) {
         if(this.completeNotify) {
-            if(oldValue === ETaskStats.downloading && (newValue === ETaskStats.complete || newValue === ETaskStats.seeding)) {
+            if(oldValue === ETaskStats.downloading && (newValue === ETaskStats.completed || newValue === ETaskStats.seeding)) {
                 browser.notifications.create({
                 "type": "basic",
-                "title": 'Complete',
+                "title": 'Completed',
                 "iconUrl": '/assets/icon.svg',
-                "message": `${taskItem.task.name} complete`
+                "message": `${taskItem.task.name} completed`
                 });
             }
         }

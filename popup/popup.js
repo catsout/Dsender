@@ -39,7 +39,7 @@ drouteBackBtn.addEventListener('click', (e) => {
 $('#cleanlist').addEventListener('click', (e) => {
   tasklist.querySelectorAll('widget-taskitem').forEach((el) => {
     const stats = el.status.stats;
-    if(stats === ETaskStats.complete || stats === ETaskStats.removed)
+    if(stats === ETaskStats.completed || stats === ETaskStats.removed)
       el.removeTask();
   });
 });
