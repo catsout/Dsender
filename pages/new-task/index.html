@@ -121,9 +121,9 @@
           <label for="useragent" class="label">User agent:</label>
           <input type="text" id="useragent" placeholder="default">
           <label for="threads" class="label">Threads:</label>
-          <input type="number" id="threads" placeholder="--">
+          <input type="number" min="1" id="threads" placeholder="--">
           <label for="minsplit" class="label">Min split size:</label>
-          <span><input type="number" id="minsplit" placeholder="--"> M</span>
+          <span><input type="number" min="1" id="minsplit" placeholder="--"> M</span>
       </div>
       <div id="btoption" class="part hidden">
         <widget-checkbox class="full" id="firstLastPiece">Download first and last pieces first</widget-checkbox>

@@ -129,8 +129,10 @@ class TaskParams {
 }
 
 class TbtStatus {
-    constructor(uploadSpeed) {
+    constructor(uploadSpeed, numSeeds, numPeers) {
         this.uploadSpeed = uploadSpeed || 0;
+        this.numSeeds = numSeeds||0;
+        this.numPeers = numPeers||0;
     }
 }
 
@@ -141,14 +143,16 @@ class TaskStatus {
      * @param {String} stats 
      * @param {Number} downloadLength
      * @param {Number} totalLength
+     * @param {Number} connections
      * @param {Number} downloadSpeed
      * @param {TbtStatus} btStatus
      */
-    constructor(name, stats, downloadLength, totalLength, downloadSpeed, btStatus) {
+    constructor(name, stats, downloadLength, totalLength, connections, downloadSpeed, btStatus) {
         this.name = name || 'unknown';
         this.stats = stats || ETaskStats.unknown;
         this.downloadLength = downloadLength;
         this.totalLength = totalLength;
+        this.connections = connections;
         this.downloadSpeed = downloadSpeed;
         this.newStatus = true;
         this.btStatus = btStatus||null;

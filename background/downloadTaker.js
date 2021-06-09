@@ -4,7 +4,7 @@ import { DownloaderBase } from "../lib/downloader-base.js";
 
 const exclude_content_type = new Set([
     'x-xpinstall', 'javascript', 'x-javascript', 'ecmascript', 'x-ecmascript',
-    'json', 'xml', 'pdf', 'xhtml'
+    'json', 'xml', 'xhtml'
 ]);
 // content_type removed params
 function checkContentTypeInclude(content_type) {
@@ -65,6 +65,7 @@ class DownloaderTaker {
             });
             if(content_type === null) break;
             if(isXmlreq && !content_disposition) break;
+            // size filter
             if(Number.isSafeInteger(content_length)) {
                 if(this.filterSize > content_length/(1024*1024)) break;
             }
@@ -77,6 +78,7 @@ class DownloaderTaker {
             if(name === null) {
                 name = DownloaderBase.getUrlFilename(url) || '';
             }
+            // name extension exclude
             const filenameEx = name.split('.').slice(-1)[0] || '';
             if(this.filterExExtension.includes(filenameEx)) break;
 

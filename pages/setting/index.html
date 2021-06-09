@@ -40,6 +40,9 @@
       input[type="number"] {
         max-width: 4em;
       }
+      input {
+        font-size: 14px;
+      }
     </style>
   </head>
 <body>
@@ -48,7 +51,7 @@
       <span class="info">Send directly</span>
       <widget-switch class="action" id="directDownload"></widget-switch>
       <label class="info" for="filterSize">Capture file size filter</label>
-      <span class="action"><input id="filterSize" type="number" min="0"> M</span>
+      <span class="action"><input id="filterSize" type="number" min="0"> MB</span>
       <div class="fill">
         <label>Exclude filename extension filter:</label>
         <div><input id="filterExExtension" type="text" placeholder="pdf,exe,zip,..."></input></div>

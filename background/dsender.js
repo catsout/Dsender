@@ -115,12 +115,12 @@ class Dsender {
     createMagnetTask({url}) {
         const mData = DownloaderBase.getMagnetInfo(url);
         if(!this.directDownload) {
-            const params = new URLSearchParams({popup: true, type: 'btMagnet', magnet: url, name: mData.name || mData.hash, hash: mData.hash});
+            const params = new URLSearchParams({popup: true, type: 'btMagnet', magnet: url, name: mData.name, hash: mData.hash});
             openPopupWindow('newBtTaskUrl', params.toString());
         } else {
             const p = this.tmgr.addTask(
                 new TaskParams(
-                    mData.name||mData.hash, null, null,
+                    mData.name, null, null,
                     new TbtParmas(
                         url, null, null, null,
                         mData.hash
