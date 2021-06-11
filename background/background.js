@@ -61,6 +61,10 @@ browser.runtime.onConnect.addListener(function(port) {
         } else if(cmd === 'openWindow') {
           openPopupWindow(data.id, data.params);
           sendOk();
+        } else if(cmd === 'downloaderOption') {
+          dsender.tmgr.getDownloaderOption(data).then(sendOk, sendError);
+        } else if(cmd === 'setDownloaderOption') {
+          dsender.tmgr.setDownloaderOption(data.name, data.options).then(sendOk, sendError);
         }
       });
       port.onDisconnect.addListener(function(p) { p.disconnected = true; })

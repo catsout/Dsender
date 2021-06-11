@@ -168,6 +168,22 @@ class TaskManager {
         return this._tasklist;
     }
 
+    getDownloaderOption(name) {
+        if(this._downloaderMap.has(name)) {
+            return this._downloaderMap.get(name).getGlobalOption();
+        } else {
+            return Promise.reject(`Downloader ${downloader} not found`);
+        }
+    }
+
+    setDownloaderOption(name, options) {
+        if(this._downloaderMap.has(name)) {
+            return this._downloaderMap.get(name).setGlobalOption(options);
+        } else {
+            return Promise.reject(`Downloader ${downloader} not found`);
+        }
+    }
+
     saveTasksToConf() {
         const tasks = this._tasklist.map((el) => el.task); 
         browser.storage.local.set({tasks});

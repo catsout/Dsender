@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body {
+        font-family: Sans-Serif;
+        font-size: 14px;
+        margin: 0;
+        min-height: 100px;
+        box-sizing: border-box;
+      }
+      .table {
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 1.25em 2em;
+        align-items: center;
+        justify-content: space-around; 
+        grid-auto-rows: min-content;
+
+        box-sizing: border-box;
+        padding: 2em 2em; 
+      }
+
+      .info {
+        grid-column: 1;
+      }
+      .action {
+        grid-column: 2;
+      }
+      .fill {
+        grid-column: span 2;
+      }
+
+      .fill input {
+        display: inline-block;
+        width: 70%;
+      }
+
+      input {
+        font-size: 14px;
+        width: max-content;
+      }
+      input[type="number"] {
+        max-width: 6em;
+      }
+     .pack {
+        display: contents;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+<body>
+    <widget-messagebox></widget-messagebox>
+    <div class="table">
+      <div class="pack hidden">
+        <div class="fill">
+          <label for="download_path">Download path:</label>
+          <div><input id="download_path" type="text"></div>
+        </div>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="download_limit">Download speed limit</label>
+        <span class="action"><input id="download_limit" type="number" min="0"> KB</span>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="upload_limit">Upload speed limit</label>
+        <span class="action"><input id="upload_limit" type="number" min="0"> KB</span>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="max_downloading">Max concurrent downloads</label>
+        <div class="action"><input id="max_downloading" type="number" min="1"></div>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="disk_cache">Disk cache</label>
+        <span class="action"><input id="disk_cache" type="number" min="0"> MB</span>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="min_split_size">Min split size</label>
+        <span class="action"><input id="min_split_size" type="number" min="1"> MB</span>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="bt_max_peers">Bt max peers per torrent</label>
+        <span class="action"><input id="bt_max_peers" type="number" min="1"></span>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="bt_seed_ratio">Bt seed ratio</label>
+        <span class="action"><input id="bt_seed_ratio" type="number" step="0.1" min="1"></span>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="bt_require_crypto">Bt require crypto</label>
+        <span class="action"><widget-switch id="bt_require_crypto"></widget-switch></span>
+      </div>
+    </div>
+  <script type="module" src="/lib/third/browser-polyfill.min.js"></script>
+  <script type="module" src="index.js"></script> 
+</body>
+
+</html>

@@ -15,40 +15,24 @@
           font-size: 16px;
         }
         .item {
-          display: flex;
           position: relative;
+          display: grid;
+          grid-template-columns: 6fr 5fr 3fr 4fr auto; 
           align-items: center;
-          flex-direction: row;
-          justify-content: space-around;
-          height: auto;
+          column-gap: 1em;
           box-sizing: border-box;
-          margin: 5px 0px;
+          padding: 0.25em 0.5em;
         }
-        .item > :not(:first-child) {
-          flex: 1;
-          max-width: 60px;
+        .item > * {
           word-break: break-all;
           overflow-wrap: break-word;
-          /*background-color: chocolate;*/
-        }
-        .item .name {
-          flex: 0 0 25%;
-          font-size: 16px;
-          max-width: unset;
-        }
-        .item .type {
-          flex: 0 0 20%;
-          max-width: unset;
-        }
-        .item .speed {
-          flex: 0 0 18%;
-          max-width: unset;
-          white-space: normal;
         }
         .item .itembut {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
           z-index: 2;
-          flex: 0 0 auto;
-          max-width: unset;
           height: 100%;
           padding: 0px 0px;
         }
@@ -70,9 +54,6 @@
           height: 0;
           border-bottom: 1px solid black;
           opacity: 30%;
-        }
-        #container {
-          margin: 5px 0px;
         }
         #container > :first-child .hr {
           display: none;
@@ -97,7 +78,10 @@
             <div><widget-bytelabel speed class="up">↑</widget-bytelabel></div>
           </span>
           <div class="itembut">
-            <widget-button theme="icon">
+            <widget-button id="setting" theme="icon">
+              <img width="100%" src="../../assets/icons/preferences.svg"></img>
+            </widget-button>
+            <widget-button id="delete" theme="icon">
               <img width="100%" src="../../assets/icons/delete.svg"></img>
             </widget-button>
           </div>

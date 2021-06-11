@@ -26,12 +26,11 @@ function updateItem(ditem, data) {
 }
 
 function clickRemove(event) {
-    let ditem = this.parentNode.parentNode.parentNode;
-    let id = ditem.getAttribute('id');
+    const ditem = this.parentNode.parentNode.parentNode;
+    const id = ditem.getAttribute('id');
     browser.storage.local.get('downloaderList').then(function(item) {
-        let len = item.downloaderList.length || 0;
+        const len = item.downloaderList.length || 0;
         for(let i=0;i<len;i++) {
-            console.log(item.downloaderList[i], id);
             if(item.downloaderList[i] === id) {
                 item.downloaderList.splice(i, 1);
                 browser.storage.local.set({downloaderList: item.downloaderList});
@@ -42,16 +41,23 @@ function clickRemove(event) {
     dcontainer.removeChild(ditem);
 }
 
+function clickSetting(event) {
+    const item = this.parentNode.parentNode;
+    const name = item.querySelector('.name').textContent;
+    window.parent.dpageroute.go('/pages/downloader-setting/index.html', {name: name});
+}
+
 function clickItem(event) {
-    let item = this.parentNode;
-    let name = item.querySelector('.name').textContent;
+    const item = this.parentNode;
+    const name = item.querySelector('.name').textContent;
     window.parent.dpageroute.go('/pages/downloader-config/index.html', {name: name});
 }
 
 function addItem(ditem, data) {
     updateItem(ditem, data);
     dcontainer.appendChild(ditem);
-    ditem.querySelector('.itembut widget-button').addEventListener('click', clickRemove);
+    ditem.querySelector('.itembut #delete').addEventListener('click', clickRemove);
+    ditem.querySelector('.itembut #setting').addEventListener('click', clickSetting);
     ditem.querySelector('.bitem').addEventListener('click', clickItem);
 }
 
