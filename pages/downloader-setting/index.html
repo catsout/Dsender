@@ -14,39 +14,68 @@
       .table {
         display: grid;
         grid-template-columns: auto auto;
-        gap: 1.25em 2em;
-        align-items: center;
-        justify-content: space-around; 
         grid-auto-rows: min-content;
-
         box-sizing: border-box;
-        padding: 2em 2em; 
+      }
+
+      .pack {
+        display: contents;
+      }
+      .pack > * {
+        padding: 0.5em 0;
+        box-sizing: border-box;
+        transition: 0.1s;
+        display: flex;
+        align-items: center;
+        white-space: pre;
       }
 
       .info {
+        height: 100%;
+        margin: 0;
         grid-column: 1;
+        padding-right: 2em;
       }
       .action {
         grid-column: 2;
       }
       .fill {
         grid-column: span 2;
+        align-items: stretch;
+        justify-content: center;
+        flex-direction: column;
+      }
+
+      .info,.fill {
+        padding-left: 1em;
+      }
+      .action,.fill {
+        padding-right: 2em;
       }
 
       .fill input {
         display: inline-block;
-        width: 70%;
       }
 
       input {
         font-size: 14px;
-        width: max-content;
+        width: 100%;
       }
+
       input[type="number"] {
         max-width: 6em;
       }
-     .pack {
-        display: contents;
+      
+      .pack:hover > * {
+        background-color: rgb(12, 12, 13, 0.1);
+      }
+      .table > *:not(:first-child)::before {
+        content: '';
+        border-top: 1px solid rgb(12, 12, 13, 0.3);
+        display: block;
+        box-sizing: border-box;
+        height: 0;
+        grid-column: span 2;
       }
       .hidden {
         display: none;
@@ -77,6 +106,10 @@
       <div class="pack hidden">
         <label class="info" for="disk_cache">Disk cache</label>
         <span class="action"><input id="disk_cache" type="number" min="0"> MB</span>
+      </div>
+      <div class="pack hidden">
+        <label class="info" for="threads">Threads</label>
+        <span class="action"><input id="threads" type="number" min="1"></span>
       </div>
       <div class="pack hidden">
         <label class="info" for="min_split_size">Min split size</label>
