@@ -112,7 +112,7 @@ function addTask(params) {
       downloader: selectDown.value,
       params: params
     }
-  }).then((result) => {
+  }, 30*1000).then((result) => {
     Notify.sendTask(Promise.resolve(result));
     browser.storage.local.get(['directDownload']).then(item => {
       if(!item.directDownload)

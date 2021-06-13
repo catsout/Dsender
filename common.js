@@ -19,7 +19,8 @@ const EDownloaderStats = {
     ok: 'ok',
     offline: 'offline',
     unauthorized: 'unauthorized',
-    error: 'error'
+    error: 'error',
+    unknown: 'unknown'
 }
 
 Object.freeze(ETaskStats);
@@ -41,7 +42,7 @@ class DownloaderStatus {
     constructor(downloadSpeed, uploadSpeed, stats) {
         this.downloadSpeed = downloadSpeed || 0;
         this.uploadSpeed = uploadSpeed || 0;
-        this.stats = stats || EDownloaderStats.ok;
+        this.stats = stats || EDownloaderStats.unknown;
     }
 
     /**

@@ -1,4 +1,5 @@
 'use strict';
+import '../lib/wrapFetch.js';
 
 import { openPopupWindow } from './window-open.js';
 import { Dsender } from './dsender.js';
